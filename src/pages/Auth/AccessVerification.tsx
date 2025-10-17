@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { CheckCircleIcon, XCircleIcon, ArrowPathIcon } from '@heroicons/react/24/outline';
-import api from '../../lib/api';
+import api from '../../lib';
 import toast from 'react-hot-toast';
 
 interface VerificationResult {

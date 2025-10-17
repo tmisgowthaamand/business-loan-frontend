@@ -11,7 +11,7 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
-import api from '../../lib/api';
+import api from '../../lib';
 import toast from 'react-hot-toast';
 
 interface Message {
@@ -44,11 +44,7 @@ function Chatbot({ language = 'en' }: ChatbotProps) {
   const getWelcomeMessage = () => {
     const accessLevel = user?.role === 'ADMIN' ? '(Admin Access)' : '(Employee Access)';
     
-    return t('chatbot.welcome', { name: user?.name || 'there' }) + '\n\n' +
-           t('chatbot.features.loanManagement') + '\n\n' +
-           t('chatbot.features.staffManagement', { access: accessLevel }) + '\n\n' +
-           t('chatbot.features.analytics') + '\n\n' +
-           t('chatbot.howCanIHelp');
+    return `Welcome ${user?.name || 'there'}!\n\nI can help you with:\n\n• Loan Management & Processing\n\n• Staff Management ${accessLevel}\n\n• Analytics & Reports\n\nHow can I help you today?`;
   };
 
   useEffect(() => {

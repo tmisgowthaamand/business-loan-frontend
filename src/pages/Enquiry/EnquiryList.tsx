@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PlusIcon, MagnifyingGlassIcon, TrashIcon, PencilIcon, EyeIcon, XMarkIcon } from '@heroicons/react/24/outline';
-import api from '../../lib/api';
+import api from '../../lib';
 import toast from 'react-hot-toast';
 function EnquiryList() {
   const [searchTerm, setSearchTerm] = useState('');

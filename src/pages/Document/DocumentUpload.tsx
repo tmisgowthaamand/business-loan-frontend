@@ -4,7 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { DocumentIcon, CheckCircleIcon, XCircleIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import api from '../../lib/api';
+import api from '../../lib';
 import FileUploader from '../../components/ui/FileUploader';
 import PDFViewer from '../../components/ui/PDFViewer';
 import ClientDocumentsView from '../../components/ui/ClientDocumentsView';

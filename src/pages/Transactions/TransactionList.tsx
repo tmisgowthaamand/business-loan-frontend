@@ -12,7 +12,7 @@ import {
   ClockIcon,
   ChartBarIcon
 } from '@heroicons/react/24/outline';
-import api from '../../lib/api';
+import api from '../../lib';
 import toast from 'react-hot-toast';
 
 // Inline responsive hook for build compatibility
