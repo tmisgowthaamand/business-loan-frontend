@@ -18,6 +18,17 @@
     "allowSyntheticDefaultImports": true,
     "forceConsistentCasingInFileNames": true,
 
+    /* Path mapping */
+    "baseUrl": ".",
+    "paths": {
+      "@/*": ["src/*"],
+      "../../lib/*": ["src/lib/*"],
+      "../../hooks/*": ["src/hooks/*"],
+      "../../components/*": ["src/components/*"],
+      "../../pages/*": ["src/pages/*"],
+      "../../utils/*": ["src/utils/*"]
+    },
+
     /* Linting */
     "strict": false,
     "noUnusedLocals": false,
