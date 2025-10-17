@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from '../../i18n/mock'; // Use mock i18n for Vercel build
 import { 
   GlobeAltIcon, 
   BellIcon,
@@ -23,7 +23,7 @@ interface HeaderProps {
 
 function Header({ language = 'en', onLanguageChange }: HeaderProps) {
   const { user } = useAuth();
-  const { t, i18n } = useTranslation();
+  const { t, i18n } = useTranslation(); // Using mock i18n for Vercel build
   // Removed useNotifications as we're using the new NotificationBell component
   const [languageOpen, setLanguageOpen] = useState(false);
   // Removed notificationsOpen state as it's handled by NotificationBell

@@ -5,7 +5,7 @@ import AppRoutes from './routes/AppRoutes';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ErrorBoundary from './components/ErrorBoundary';
-import './i18n/index'; // Initialize i18n
+import './i18n/mock'; // Use mock i18n for Vercel build compatibility
 
 const queryClient = new QueryClient({
   defaultOptions: {
