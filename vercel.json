@@ -5,55 +5,50 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": "vite",
-  "routes": [
-    {
-      "handle": "filesystem"
-    },
-    {
-      "src": "/apply",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/login",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/dashboard",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/enquiries",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/documents",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/shortlist",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/payment-gateway",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/staff",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/transactions",
-      "dest": "/index.html"
-    },
-    {
-      "src": "/(.*)",
-      "dest": "/index.html"
-    }
-  ],
   "rewrites": [
     {
       "source": "/api/(.*)",
       "destination": "https://loan-backend-main.vercel.app/api/$1"
+    },
+    {
+      "source": "/apply",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/login",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/dashboard",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/enquiries",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/documents",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/shortlist",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/payment-gateway",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/staff",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/transactions",
+      "destination": "/index.html"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
     }
   ],
   "headers": [
