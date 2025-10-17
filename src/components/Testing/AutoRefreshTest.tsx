@@ -35,7 +35,7 @@ const AutoRefreshTest: React.FC = () => {
       const report = tester.generateReport();
       console.log(report);
       
-      const successCount = testResults.filter(r => r.status === 'success').length;
+      const successCount = testResults.filter((r: any) => r.status === 'success').length;
       const totalCount = testResults.length;
       
       toast.success(`Tests completed! ${successCount}/${totalCount} passed`);

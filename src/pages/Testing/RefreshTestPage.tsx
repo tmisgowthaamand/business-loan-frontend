@@ -91,17 +91,17 @@ const RefreshTestPage: React.FC = () => {
   }, [isAutoRefreshEnabled]);
 
   // Test React Query cache
-  const { data: enquiriesCache } = useQuery('enquiries', () => api.get('/api/enquiries').then(r => r.data), {
+  const { data: enquiriesCache } = useQuery('enquiries', () => api.get('/api/enquiries').then((r: any) => r.data), {
     staleTime: 3 * 60 * 1000,
     keepPreviousData: true,
   });
 
-  const { data: shortlistCache } = useQuery('shortlists', () => api.get('/api/shortlist').then(r => r.data), {
+  const { data: shortlistCache } = useQuery('shortlists', () => api.get('/api/shortlist').then((r: any) => r.data), {
     staleTime: 2 * 60 * 1000,
     keepPreviousData: true,
   });
 
-  const { data: documentsCache } = useQuery('documents', () => api.get('/api/documents').then(r => r.data), {
+  const { data: documentsCache } = useQuery('documents', () => api.get('/api/documents').then((r: any) => r.data), {
     staleTime: 8 * 60 * 1000,
     keepPreviousData: true,
   });

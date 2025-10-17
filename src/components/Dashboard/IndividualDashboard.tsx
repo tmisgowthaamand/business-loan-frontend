@@ -244,7 +244,7 @@ function IndividualDashboard({ onSwitchToGlobal }: IndividualDashboardProps) {
           
           <div className="space-y-4">
             {dashboardData.recentActivities.length > 0 ? (
-              dashboardData.recentActivities.map((activity, index) => {
+              dashboardData.recentActivities.map((activity: any, index: number) => {
                 const IconComponent = getActivityIcon(activity.type);
                 return (
                   <motion.div
@@ -302,7 +302,7 @@ function IndividualDashboard({ onSwitchToGlobal }: IndividualDashboardProps) {
 
           <div className="space-y-4 max-h-96 overflow-y-auto">
             {dashboardData.myClients.length > 0 ? (
-              dashboardData.myClients.map((client, index) => (
+              dashboardData.myClients.map((client: any, index: number) => (
                 <motion.div
                   key={client.id}
                   initial={{ opacity: 0, y: 20 }}
