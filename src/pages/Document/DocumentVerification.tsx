@@ -12,7 +12,7 @@ import {
   UserIcon
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
-import api from '../../lib/api';
+import api from '../../lib/api.ts';
 
 interface Document {
   id: number;

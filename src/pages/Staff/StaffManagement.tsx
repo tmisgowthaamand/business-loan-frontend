@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { motion } from 'framer-motion';
 import { MagnifyingGlassIcon, UserPlusIcon, TrashIcon, CheckIcon, XMarkIcon, EnvelopeIcon, ArrowPathIcon, EyeIcon, EyeSlashIcon } from '@heroicons/react/24/outline';
-import api from '../../lib/api';
+import api from '../../lib/api.ts';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 
