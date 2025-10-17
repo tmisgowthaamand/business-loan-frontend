@@ -1,5 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { useTranslation } from '../../i18n/mock'; // Use mock i18n for Vercel build
+// Mock i18n implementation for build compatibility
+const useTranslation = () => ({
+  t: (key: string) => key.split('.').pop() || key,
+  i18n: { changeLanguage: (lang: string) => Promise.resolve() }
+});
 import { 
   GlobeAltIcon, 
   BellIcon,
