@@ -3,8 +3,17 @@ import { useQuery, useQueryClient, useMutation } from 'react-query';
 import { Link, useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { PlusIcon, MagnifyingGlassIcon, TrashIcon, EyeIcon, PencilIcon } from '@heroicons/react/24/outline';
-import api from '../../lib/api';
+import axios from 'axios';
 import toast from 'react-hot-toast';
+
+// Create axios instance for build compatibility
+const api = axios.create({
+  baseURL: 'http://localhost:5002',
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 // Inline responsive hook for build compatibility
 type Device = 'mobile' | 'tablet' | 'desktop';
