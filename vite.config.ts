@@ -8,6 +8,20 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@/lib': path.resolve(__dirname, './src/lib'),
+    },
+    extensions: ['.js', '.ts', '.jsx', '.tsx', '.json'],
+  },
+  build: {
+    rollupOptions: {
+      output: {
+        manualChunks: {
+          vendor: ['react', 'react-dom'],
+          router: ['react-router-dom'],
+          query: ['react-query'],
+          ui: ['@heroicons/react', 'framer-motion'],
+        },
+      },
     },
   },
   server: {

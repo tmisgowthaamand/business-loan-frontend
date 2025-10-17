@@ -48,8 +48,6 @@ tmp
 temp
 
 # Backend files (if accidentally included)
-*.ts
-!*.d.ts
 src/api
 server
 backend

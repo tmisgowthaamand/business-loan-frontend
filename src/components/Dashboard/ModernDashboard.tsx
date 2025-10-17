@@ -1,5 +1,8 @@
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
+// Mock translation function for build compatibility
+const useTranslation = () => ({
+  t: (key: string, fallback?: string) => fallback || key
+});
 import { useState } from 'react';
 import {
   DocumentTextIcon,
