@@ -8,7 +8,7 @@
     "allowJs": true,
 
     /* Bundler mode */
-    "moduleResolution": "node",
+    "moduleResolution": "bundler",
     "allowImportingTsExtensions": false,
     "resolveJsonModule": true,
     "isolatedModules": true,
@@ -21,12 +21,7 @@
     /* Path mapping */
     "baseUrl": ".",
     "paths": {
-      "@/*": ["src/*"],
-      "../../lib/*": ["src/lib/*"],
-      "../../hooks/*": ["src/hooks/*"],
-      "../../components/*": ["src/components/*"],
-      "../../pages/*": ["src/pages/*"],
-      "../../utils/*": ["src/utils/*"]
+      "@/*": ["src/*"]
     },
 
     /* Linting */
