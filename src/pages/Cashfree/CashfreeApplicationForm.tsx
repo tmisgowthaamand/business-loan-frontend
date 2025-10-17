@@ -4,8 +4,17 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import api from '../../lib/api';
+import axios from 'axios';
 import toast from 'react-hot-toast';
+
+// Create axios instance for build compatibility
+const api = axios.create({
+  baseURL: 'http://localhost:5002',
+  timeout: 30000,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+});
 
 interface CashfreeApplicationData {
   shortlistId: number;
