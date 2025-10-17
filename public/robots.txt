@@ -1,0 +1,15 @@
+User-agent: *
+Allow: /
+Allow: /apply
+Disallow: /dashboard
+Disallow: /login
+Disallow: /enquiries
+Disallow: /documents
+Disallow: /shortlist
+Disallow: /payment-gateway
+Disallow: /staff
+Disallow: /transactions
+Disallow: /api/
+
+# Sitemap
+Sitemap: https://business-loan-portal.vercel.app/sitemap.xml
