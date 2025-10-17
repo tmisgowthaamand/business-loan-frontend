@@ -11,7 +11,7 @@ import {
   BeakerIcon
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
-import api from '../../lib';
+import api from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface Message {

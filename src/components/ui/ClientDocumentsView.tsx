@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { XMarkIcon, DocumentIcon, CheckCircleIcon, XCircleIcon, EyeIcon } from '@heroicons/react/24/outline';
 import { useQuery } from 'react-query';
-import api from '../../lib';
+import api from '../../lib/api';
 import PDFViewer from './PDFViewer';
 
 interface Document {

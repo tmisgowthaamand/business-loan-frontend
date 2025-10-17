@@ -4,7 +4,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import { useMutation, useQuery, useQueryClient } from 'react-query';
 import { motion } from 'framer-motion';
 import { ArrowLeftIcon } from '@heroicons/react/24/outline';
-import api from '../../lib';
+import api from '../../lib/api';
 import toast from 'react-hot-toast';
 
 interface TransactionFormData {
