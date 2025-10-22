@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import api from '../../lib/api';
@@ -34,6 +34,53 @@ const LoanApplicationForm: React.FC = () => {
     annualRevenue: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [phoneValidation, setPhoneValidation] = useState<{
+    isChecking: boolean;
+    isDuplicate: boolean;
+    existingClient?: string;
+  }>({
+    isChecking: false,
+    isDuplicate: false
+  });
+
+  // Real-time phone number validation with debounce
+  useEffect(() => {
+    if (formData.phone && formData.phone.length >= 10) {
+      const timeoutId = setTimeout(async () => {
+        setPhoneValidation({ isChecking: true, isDuplicate: false });
+        
+        try {
+          const response = await api.get('/api/enquiries');
+          const existingEnquiries = response.data || [];
+          
+          const phoneExists = existingEnquiries.find((enquiry: any) => 
+            enquiry.mobile === formData.phone
+          );
+          
+          if (phoneExists) {
+            const clientName = phoneExists.name || phoneExists.businessName || 'Unknown Client';
+            setPhoneValidation({
+              isChecking: false,
+              isDuplicate: true,
+              existingClient: clientName
+            });
+          } else {
+            setPhoneValidation({
+              isChecking: false,
+              isDuplicate: false
+            });
+          }
+        } catch (error) {
+          console.error('Error checking phone number:', error);
+          setPhoneValidation({ isChecking: false, isDuplicate: false });
+        }
+      }, 1000); // 1 second debounce
+
+      return () => clearTimeout(timeoutId);
+    } else {
+      setPhoneValidation({ isChecking: false, isDuplicate: false });
+    }
+  }, [formData.phone]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
@@ -43,6 +90,47 @@ const LoanApplicationForm: React.FC = () => {
     }));
   };
 
+  // Function to check for duplicate phone number or name
+  const checkForDuplicates = async () => {
+    try {
+      console.log('🔍 Checking for duplicate phone number and name...');
+      
+      // Fetch all existing enquiries
+      const response = await api.get('/api/enquiries');
+      const existingEnquiries = response.data || [];
+      
+      // Check for duplicate phone number
+      const phoneExists = existingEnquiries.find((enquiry: any) => 
+        enquiry.mobile === formData.phone
+      );
+      
+      if (phoneExists) {
+        const clientName = phoneExists.name || phoneExists.businessName || 'Unknown Client';
+        toast.error(`Phone number ${formData.phone} already exists for client: ${clientName}`);
+        return false;
+      }
+      
+      // Check for duplicate name (owner name or business name)
+      const nameExists = existingEnquiries.find((enquiry: any) => 
+        (enquiry.name && enquiry.name.toLowerCase() === formData.ownerName.toLowerCase()) ||
+        (enquiry.businessName && enquiry.businessName.toLowerCase() === formData.businessName.toLowerCase())
+      );
+      
+      if (nameExists) {
+        const existingName = nameExists.name || nameExists.businessName;
+        const existingPhone = nameExists.mobile;
+        toast.error(`Client "${existingName}" already exists with phone number: ${existingPhone}`);
+        return false;
+      }
+      
+      return true; // No duplicates found
+    } catch (error) {
+      console.error('❌ Error checking for duplicates:', error);
+      // Continue with submission if check fails
+      return true;
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -50,7 +138,15 @@ const LoanApplicationForm: React.FC = () => {
       toast.error('Please fill in all required fields');
       return;
     }
+    
     setIsSubmitting(true);
+    
+    // Check for duplicates before submitting
+    const noDuplicates = await checkForDuplicates();
+    if (!noDuplicates) {
+      setIsSubmitting(false);
+      return;
+    }
     
     try {
       console.log('🚀 Submitting loan enquiry:', formData);
@@ -240,15 +336,42 @@ const LoanApplicationForm: React.FC = () => {
                   </div>
                   <div>
                     <label className="block text-sm font-medium text-slate-300 mb-2">Phone Number</label>
-                    <input
-                      type="tel"
-                      name="phone"
-                      value={formData.phone}
-                      onChange={handleInputChange}
-                      placeholder="+1 (555) 000-0000"
-                      className="w-full px-4 py-3 bg-slate-700/50 border border-slate-600 rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-teal-400 focus:border-transparent"
-                      required
-                    />
+                    <div className="relative">
+                      <input
+                        type="tel"
+                        name="phone"
+                        value={formData.phone}
+                        onChange={handleInputChange}
+                        placeholder="+91 9787373721"
+                        className={`w-full px-4 py-3 bg-slate-700/50 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:border-transparent ${
+                          phoneValidation.isDuplicate 
+                            ? 'border-red-500 focus:ring-red-400' 
+                            : 'border-slate-600 focus:ring-teal-400'
+                        }`}
+                        required
+                      />
+                      {phoneValidation.isChecking && (
+                        <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                          <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-teal-400"></div>
+                        </div>
+                      )}
+                    </div>
+                    {phoneValidation.isDuplicate && (
+                      <p className="mt-2 text-sm text-red-400 flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        Phone number already exists for client: {phoneValidation.existingClient}
+                      </p>
+                    )}
+                    {!phoneValidation.isDuplicate && !phoneValidation.isChecking && formData.phone.length >= 10 && (
+                      <p className="mt-2 text-sm text-green-400 flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                        </svg>
+                        Phone number is available
+                      </p>
+                    )}
                   </div>
                 </div>
 
@@ -321,8 +444,12 @@ const LoanApplicationForm: React.FC = () => {
                 {/* Submit Button */}
                 <button
                   type="submit"
-                  disabled={isSubmitting}
-                  className="w-full bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                  disabled={isSubmitting || phoneValidation.isDuplicate}
+                  className={`w-full font-semibold py-4 px-6 rounded-lg transition-all duration-200 flex items-center justify-center space-x-2 disabled:opacity-50 disabled:cursor-not-allowed ${
+                    phoneValidation.isDuplicate 
+                      ? 'bg-gray-500 text-white cursor-not-allowed' 
+                      : 'bg-gradient-to-r from-teal-500 to-cyan-500 hover:from-teal-600 hover:to-cyan-600 text-white'
+                  }`}
                 >
                   {isSubmitting ? (
                     <>
