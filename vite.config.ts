@@ -28,11 +28,14 @@ export default defineConfig({
     port: 3001,
     proxy: {
       '/api': {
-        target: 'http://localhost:5002',
+        target: process.env.VITE_BACKEND_URL || 'http://localhost:5002',
         changeOrigin: true,
         secure: false,
         rewrite: (path) => path,
       },
     },
+  },
+  define: {
+    'process.env.VITE_BACKEND_URL': JSON.stringify(process.env.VITE_BACKEND_URL),
   },
 })

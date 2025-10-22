@@ -2,14 +2,8 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useQuery, useQueryClient } from 'react-query';
 import axios from 'axios';
 
-// Create a simple axios instance for notifications
-const api = axios.create({
-  baseURL: 'http://localhost:5002',
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Import the configured API instance
+import api from '../lib/api';
 
 interface Notification {
   id: string;

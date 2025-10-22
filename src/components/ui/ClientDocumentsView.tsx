@@ -102,10 +102,11 @@ function ClientDocumentsView({ isOpen, onClose, clientId, clientName, documents:
   const completedRequired = requiredTypes.filter(type => uploadedTypes.has(type.value));
   const completionPercentage = requiredTypes.length > 0 ? Math.round((completedRequired.length / requiredTypes.length) * 100) : 0;
 
-  const handleViewDocument = (document: Document) => {
+  const handleViewDocument = async (document: Document) => {
+    const { getApiUrl } = await import('../../lib/config');
     setPdfViewer({
       isOpen: true,
-      documentUrl: `http://localhost:5002/api/documents/${document.id}/view`,
+      documentUrl: getApiUrl(`/api/documents/${document.id}/view`),
       documentName: `${document.enquiry.name} - ${documentTypes.find(t => t.value === document.type)?.label || document.type}`,
       documentType: document.type
     });

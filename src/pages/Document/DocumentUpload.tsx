@@ -415,7 +415,8 @@ function DocumentUpload() {
   const handleViewDocument = async (document: Document) => {
     try {
       // Use the correct backend endpoint for PDF viewing
-      const proxyUrl = `http://localhost:5002/api/documents/${document.id}/view`;
+      const { getApiUrl } = await import('../../lib/config');
+      const proxyUrl = getApiUrl(`/api/documents/${document.id}/view`);
       
       const viewerState = {
         isOpen: true,

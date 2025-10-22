@@ -6,14 +6,8 @@ import { PlusIcon, MagnifyingGlassIcon, TrashIcon, EyeIcon, PencilIcon } from '@
 import axios from 'axios';
 import toast from 'react-hot-toast';
 
-// Create axios instance for build compatibility
-const api = axios.create({
-  baseURL: 'http://localhost:5002',
-  timeout: 30000,
-  headers: {
-    'Content-Type': 'application/json',
-  },
-});
+// Import the configured API instance
+import api from '../../lib/api';
 
 // Inline responsive hook for build compatibility
 type Device = 'mobile' | 'tablet' | 'desktop';

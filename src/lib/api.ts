@@ -1,8 +1,28 @@
 import axios from 'axios';
 
+// Determine the backend URL based on environment
+const getBackendURL = () => {
+  // Check if we're in production (Vercel deployment)
+  if (import.meta.env.PROD) {
+    return 'https://business-loan-backend.onrender.com';
+  }
+  
+  // Check for environment variable
+  if (import.meta.env.VITE_BACKEND_URL) {
+    return import.meta.env.VITE_BACKEND_URL;
+  }
+  
+  // Default to localhost for development
+  return 'http://localhost:5002';
+};
+
+const BACKEND_URL = getBackendURL();
+
+console.log('🔗 Backend URL configured:', BACKEND_URL);
+
 // Create axios instance with base configuration
 const api = axios.create({
-  baseURL: 'http://localhost:5002',  // Direct backend URL since we're not using /api prefix
+  baseURL: BACKEND_URL,
   timeout: 30000, // Increased timeout to 30 seconds
   headers: {
     'Content-Type': 'application/json',
