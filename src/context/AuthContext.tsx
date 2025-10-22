@@ -1,5 +1,6 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import toast from 'react-hot-toast';
+import api from '../lib/api';
 
 interface User {
   id: number;
@@ -38,25 +39,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       // Try to get user data from localStorage
       const storedUser = localStorage.getItem('user');
-      if (storedUser) {
-        const userData = JSON.parse(storedUser);
-        setUser(userData);
-        setIsAuthenticated(true);
+      if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
+        try {
+          const userData = JSON.parse(storedUser);
+          if (userData && userData.id) {
+            setUser(userData);
+            setIsAuthenticated(true);
+          } else {
+            throw new Error('Invalid user data');
+          }
+        } catch (parseError) {
+          console.error('❌ Error parsing stored user data:', parseError);
+          localStorage.removeItem('token');
+          localStorage.removeItem('user');
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } else {
-        // Fallback to demo user if no stored user data
-        const mockUser = {
-          id: 1,
-          name: 'Demo User',
-          email: 'demo@example.com',
-          role: 'ADMIN' as const
-        };
-        
-        setUser(mockUser);
-        setIsAuthenticated(true);
+        // No stored user data
+        setUser(null);
+        setIsAuthenticated(false);
       }
     } catch (error) {
+      console.error('❌ Error in fetchUserProfile:', error);
       localStorage.removeItem('token');
       localStorage.removeItem('user');
+      setUser(null);
+      setIsAuthenticated(false);
     } finally {
       setLoading(false);
     }
@@ -101,20 +110,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Fallback to backend auth if not a demo user
       console.log('🔐 Making request to: /api/auth/login');
       
-      const response = await fetch('/api/auth/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
-      
-      console.log('📡 Response status:', response.status);
-      
-      const data = await response.json();
+      const response = await api.post('/api/auth/login', credentials);
+      const data = response.data;
       console.log('📦 Response data:', data);
       
-      if (response.ok && data.access_token) {
+      if (data.access_token) {
         console.log('✅ Backend login successful, setting user data...');
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('user', JSON.stringify(data.user));
@@ -153,17 +153,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       setIsAuthenticated(false);
       
       // Call the force fresh login endpoint
-      const response = await fetch('/api/auth/force-fresh-login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(credentials),
-      });
+      const response = await api.post('/api/auth/force-fresh-login', credentials);
+      const data = response.data;
       
-      const data = await response.json();
-      
-      if (response.ok && data.access_token) {
+      if (data.access_token) {
         localStorage.setItem('token', data.access_token);
         localStorage.setItem('user', JSON.stringify(data.user));
         
