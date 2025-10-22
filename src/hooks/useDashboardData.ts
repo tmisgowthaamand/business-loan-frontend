@@ -1,5 +1,6 @@
 import { useQuery } from 'react-query';
 import { useAuth } from '../context/AuthContext';
+import api from '../lib/api';
 
 interface DashboardStats {
   totalEnquiries: number;
@@ -53,14 +54,9 @@ export const useDashboardData = () => {
       // Fetch real enquiry data with consistent API endpoints
       let enquiries = [];
       try {
-        const enquiriesResponse = await fetch('/api/enquiries');
-        if (enquiriesResponse.ok) {
-          enquiries = await enquiriesResponse.json();
-          console.log('📊 Dashboard fetched enquiries:', enquiries.length, 'enquiries');
-        } else {
-          console.log('📊 API response not ok, using empty data');
-          enquiries = [];
-        }
+        const enquiriesResponse = await api.get('/api/enquiries');
+        enquiries = enquiriesResponse.data || [];
+        console.log('📊 Dashboard fetched enquiries:', enquiries.length, 'enquiries');
       } catch (error) {
         console.log('📊 Fetch error, using empty data:', error);
         enquiries = [];
@@ -69,13 +65,9 @@ export const useDashboardData = () => {
       // Fetch shortlist data
       let shortlistCount = 0;
       try {
-        const shortlistResponse = await fetch('/api/shortlist');
-        if (shortlistResponse.ok) {
-          const shortlistData = await shortlistResponse.json();
-          shortlistCount = shortlistData?.length || 0;
-        } else {
-          shortlistCount = 0;
-        }
+        const shortlistResponse = await api.get('/api/shortlist');
+        const shortlistData = shortlistResponse.data || [];
+        shortlistCount = shortlistData.length || 0;
       } catch (error) {
         console.log('📊 Shortlist fetch error:', error);
         shortlistCount = 0;
@@ -84,15 +76,11 @@ export const useDashboardData = () => {
       // Fetch documents data to calculate documents awaiting verification
       let documentsAwaitingCount = 0;
       try {
-        const documentsResponse = await fetch('/api/documents');
-        if (documentsResponse.ok) {
-          const documentsData = await documentsResponse.json();
-          // Count documents that are uploaded but not verified
-          documentsAwaitingCount = documentsData?.filter((doc: any) => !doc.verified)?.length || 0;
-          console.log('📊 Documents awaiting verification:', documentsAwaitingCount);
-        } else {
-          documentsAwaitingCount = 0;
-        }
+        const documentsResponse = await api.get('/api/documents');
+        const documentsData = documentsResponse.data || [];
+        // Count documents that are uploaded but not verified
+        documentsAwaitingCount = documentsData.filter((doc: any) => !doc.verified).length || 0;
+        console.log('📊 Documents awaiting verification:', documentsAwaitingCount);
       } catch (error) {
         console.log('📊 Documents fetch error:', error);
         documentsAwaitingCount = 0;
@@ -101,13 +89,9 @@ export const useDashboardData = () => {
       // Fetch payment gateway data
       let paymentCount = 0;
       try {
-        const paymentResponse = await fetch('/api/cashfree');
-        if (paymentResponse.ok) {
-          const paymentData = await paymentResponse.json();
-          paymentCount = paymentData?.filter((p: any) => p.status === 'TRANSACTION_DONE')?.length || 0;
-        } else {
-          paymentCount = 0;
-        }
+        const paymentResponse = await api.get('/api/cashfree/applications');
+        const paymentData = paymentResponse.data || [];
+        paymentCount = paymentData.filter((p: any) => p.status === 'TRANSACTION_DONE').length || 0;
       } catch (error) {
         console.log('📊 Payment fetch error:', error);
         paymentCount = 0;
@@ -118,14 +102,12 @@ export const useDashboardData = () => {
       let completedTransactions = 0;
       let pendingTransactions = 0;
       try {
-        const transactionsResponse = await fetch('/api/transactions');
-        if (transactionsResponse.ok) {
-          const transactionsData = await transactionsResponse.json();
-          totalTransactions = transactionsData?.length || 0;
-          completedTransactions = transactionsData?.filter((t: any) => t.status === 'COMPLETED')?.length || 0;
-          pendingTransactions = transactionsData?.filter((t: any) => t.status === 'PENDING')?.length || 0;
-          console.log('📊 Transactions data:', { totalTransactions, completedTransactions, pendingTransactions });
-        }
+        const transactionsResponse = await api.get('/api/transactions');
+        const transactionsData = transactionsResponse.data || [];
+        totalTransactions = transactionsData.length || 0;
+        completedTransactions = transactionsData.filter((t: any) => t.status === 'COMPLETED').length || 0;
+        pendingTransactions = transactionsData.filter((t: any) => t.status === 'PENDING').length || 0;
+        console.log('📊 Transactions data:', { totalTransactions, completedTransactions, pendingTransactions });
       } catch (error) {
         console.log('📊 Transactions fetch error:', error);
         totalTransactions = 0;
