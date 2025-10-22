@@ -1,4 +1,5 @@
 import { NavLink } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import {
   HomeIcon,
   DocumentTextIcon,
@@ -13,16 +14,17 @@ import { useAuth } from '../../context/AuthContext';
 
 function Sidebar() {
   const { user, logout } = useAuth();
+  const { t } = useTranslation();
   const isAdmin = user?.role === 'ADMIN';
 
   const navItems = [
-    { name: 'Dashboard', href: '/dashboard', icon: HomeIcon, show: true },
-    { name: 'Enquiries', href: '/enquiries', icon: DocumentTextIcon, show: true },
-    { name: 'Doc Verification', href: '/documents', icon: FolderIcon, show: true },
-    { name: 'Shortlist', href: '/shortlist', icon: ListBulletIcon, show: true },
-    { name: 'Payment Gateway Applications', href: '/payment-gateway', icon: CreditCardIcon, show: true },
-    { name: 'Staff Management', href: '/staff', icon: UserGroupIcon, show: isAdmin },
-    { name: 'Transactions', href: '/transactions', icon: BanknotesIcon, show: isAdmin },
+    { name: t('sidebar.dashboard'), href: '/dashboard', icon: HomeIcon, show: true },
+    { name: t('sidebar.enquiries'), href: '/enquiries', icon: DocumentTextIcon, show: true },
+    { name: t('sidebar.docVerification'), href: '/documents', icon: FolderIcon, show: true },
+    { name: t('sidebar.shortlist'), href: '/shortlist', icon: ListBulletIcon, show: true },
+    { name: t('sidebar.paymentGateway'), href: '/payment-gateway', icon: CreditCardIcon, show: true },
+    { name: t('sidebar.staffManagement'), href: '/staff', icon: UserGroupIcon, show: isAdmin },
+    { name: t('sidebar.transactions'), href: '/transactions', icon: BanknotesIcon, show: isAdmin },
   ];
 
   return (
@@ -45,7 +47,7 @@ function Sidebar() {
           </div>
           <div>
             <h1 className="text-white text-xl font-poppins font-bold">Portal</h1>
-            <p className="text-slate-300 text-sm font-medium">Business Loan Management</p>
+            <p className="text-slate-300 text-sm font-medium">{t('header.title')}</p>
           </div>
         </div>
       </div>

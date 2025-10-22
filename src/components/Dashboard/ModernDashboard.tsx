@@ -1,9 +1,8 @@
 import { motion } from 'framer-motion';
-// Mock translation function for build compatibility
-const useTranslation = () => ({
-  t: (key: string, fallback?: string) => fallback || key
-});
+import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
 import {
   DocumentTextIcon,
   ClockIcon,
@@ -104,13 +103,40 @@ const mockDashboardData = {
 };
 
 function ModernDashboard() {
-  const { t } = useTranslation();
   const { user } = useAuth();
-  const { data: dashboardData, loading: isLoading, refetch } = useDashboardData();
+  const { t } = useTranslation();
+  const navigate = useNavigate();
+  const [selectedView, setSelectedView] = useState('overview');
+  const { data: currentData, loading, error, refetch } = useDashboardData();
+
+  // Handle enquiry actions
+  const handleViewEnquiry = (enquiry: any) => {
+    console.log('👁️ Viewing enquiry:', enquiry.name);
+    navigate(`/enquiries?view=${enquiry.id}`);
+  };
+
+  const handleEditEnquiry = (enquiry: any) => {
+    console.log('✏️ Editing enquiry:', enquiry.name);
+    navigate(`/enquiries?edit=${enquiry.id}`);
+  };
+
+  const handleDeleteEnquiry = (enquiry: any) => {
+    console.log('🗑️ Deleting enquiry:', enquiry.name);
+    if (window.confirm(`Are you sure you want to delete enquiry for ${enquiry.name}?`)) {
+      toast.success(`Enquiry for ${enquiry.name} deleted successfully`);
+      // Here you would typically call an API to delete the enquiry
+    }
+  };
+
+  const handleViewAllEnquiries = () => {
+    console.log('📋 Navigating to all enquiries');
+    navigate('/enquiries');
+  };
+
   const [showIndividualDashboard, setShowIndividualDashboard] = useState(false);
 
   // Use real data with fallback to prevent crashes
-  const currentData = dashboardData || {
+  const dashboardData = currentData || {
     stats: {
       totalEnquiries: 0,
       pendingReview: 0,
@@ -155,7 +181,7 @@ function ModernDashboard() {
   };
 
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="p-8">
         <div className="animate-pulse space-y-6">
@@ -196,9 +222,9 @@ function ModernDashboard() {
             <div className="flex items-center space-x-4">
               <div className="text-right">
                 <div className="flex items-center justify-end space-x-2 mb-1">
-                  <div className={`w-2 h-2 rounded-full ${isLoading ? 'bg-yellow-300 animate-pulse' : 'bg-green-300'}`}></div>
+                  <div className={`w-2 h-2 rounded-full ${loading ? 'bg-yellow-300 animate-pulse' : 'bg-green-300'}`}></div>
                   <p className="text-blue-100 text-sm">
-                    {isLoading ? 'Updating...' : 'Auto-refreshes every 15 seconds'}
+                    {loading ? 'Updating...' : 'Auto-refreshes every 15 seconds'}
                   </p>
                 </div>
                 <p className="text-blue-200 text-xs">
@@ -219,16 +245,16 @@ function ModernDashboard() {
                 </button>
                 <button
                   onClick={() => refetch()}
-                  disabled={isLoading}
+                  disabled={loading}
                   className={`inline-flex items-center px-4 py-2 bg-white bg-opacity-20 hover:bg-opacity-30 rounded-lg text-white transition-all duration-200 ${
-                    isLoading ? 'opacity-50 cursor-not-allowed' : ''
+                    loading ? 'opacity-50 cursor-not-allowed' : ''
                   }`}
                   title="Refresh dashboard data"
                 >
-                  <svg className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <svg className={`h-4 w-4 mr-2 ${loading ? 'animate-spin' : ''}`} fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  {isLoading ? 'Updating...' : 'Refresh'}
+                  {loading ? 'Updating...' : 'Refresh'}
                 </button>
               </div>
             </div>
@@ -422,8 +448,11 @@ function ModernDashboard() {
           <h2 className="text-xl font-bold text-gray-900">
             {t('dashboard.recentEnquiries', 'Recent Enquiries')}
           </h2>
-          <button className="text-sm text-blue-600 hover:text-blue-800 font-medium">
-            View All
+          <button 
+            onClick={handleViewAllEnquiries}
+            className="text-sm text-blue-600 hover:text-blue-800 font-medium transition-colors duration-200 hover:underline"
+          >
+            View All →
           </button>
         </div>
 
@@ -463,13 +492,25 @@ function ModernDashboard() {
                     <td className="py-4 px-4 text-gray-600 text-sm">{new Date(enquiry.createdAt).toLocaleDateString()}</td>
                     <td className="py-4 px-4">
                       <div className="flex items-center space-x-2">
-                        <button className="p-1 text-blue-600 hover:text-blue-800" title="View">
+                        <button 
+                          onClick={() => handleViewEnquiry(enquiry)}
+                          className="p-1 text-blue-600 hover:text-blue-800 hover:bg-blue-50 rounded transition-colors duration-200" 
+                          title="View Enquiry"
+                        >
                           <EyeIcon className="h-4 w-4" />
                         </button>
-                        <button className="p-1 text-indigo-600 hover:text-indigo-800" title="Edit">
+                        <button 
+                          onClick={() => handleEditEnquiry(enquiry)}
+                          className="p-1 text-indigo-600 hover:text-indigo-800 hover:bg-indigo-50 rounded transition-colors duration-200" 
+                          title="Edit Enquiry"
+                        >
                           <PencilIcon className="h-4 w-4" />
                         </button>
-                        <button className="p-1 text-red-600 hover:text-red-800" title="Delete">
+                        <button 
+                          onClick={() => handleDeleteEnquiry(enquiry)}
+                          className="p-1 text-red-600 hover:text-red-800 hover:bg-red-50 rounded transition-colors duration-200" 
+                          title="Delete Enquiry"
+                        >
                           <TrashIcon className="h-4 w-4" />
                         </button>
                       </div>

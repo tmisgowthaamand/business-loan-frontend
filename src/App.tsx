@@ -5,7 +5,8 @@ import AppRoutes from './routes/AppRoutes';
 import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ErrorBoundary from './components/ErrorBoundary';
-// Mock i18n removed for Vercel build compatibility
+import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import './i18n'; // Initialize i18n
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -52,6 +53,7 @@ function App() {
           <NotificationProvider>
             <BrowserRouter>
               <AppRoutes />
+              <ScrollToTop />
               <Toaster position="top-right" />
             </BrowserRouter>
           </NotificationProvider>

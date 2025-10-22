@@ -13,12 +13,62 @@ const api = axios.create({
 
 interface Notification {
   id: string;
-  type: 'NEW_ENQUIRY' | 'DOCUMENT_UPLOADED' | 'DOCUMENT_VERIFIED' | 'SHORTLISTED' | 'PAYMENT_APPLIED' | 'STAFF_ADDED';
+  type: 'NEW_ENQUIRY' | 'DOCUMENT_UPLOADED' | 'DOCUMENT_VERIFIED' | 'SHORTLISTED' | 'PAYMENT_APPLIED' | 'STAFF_ADDED' | 'STATUS_UPDATED' | 'ENQUIRY_ASSIGNED' | 'ENQUIRY_COMPLETED' | 'LOAN_APPROVED' | 'LOAN_REJECTED' | 'TRANSACTION_COMPLETED';
   title: string;
   message: string;
   createdAt: string;
   read: boolean;
-  data?: any;
+  data?: {
+    // Client Information
+    enquiryId?: number;
+    clientName?: string;
+    name?: string;
+    mobile?: string;
+    email?: string;
+    source?: string;
+    
+    // Business Information
+    businessType?: string;
+    businessName?: string;
+    annualRevenue?: string;
+    gstStatus?: string;
+    
+    // Loan Information
+    loanAmount?: number;
+    loanPurpose?: string;
+    interestRate?: string;
+    tenure?: string;
+    
+    // Status & Assignment
+    currentStatus?: string;
+    previousStatus?: string;
+    interestStatus?: string;
+    assignedStaff?: string;
+    updatedBy?: string;
+    
+    // Document Information
+    documentType?: string;
+    verified?: boolean;
+    uploadDate?: string;
+    fileSize?: string;
+    
+    // Payment Information
+    applicationId?: string;
+    paymentStatus?: string;
+    paymentGateway?: string;
+    transactionId?: string;
+    
+    // Activity Timeline
+    statusHistory?: Array<{
+      status: string;
+      timestamp: string;
+      updatedBy?: string;
+      notes?: string;
+    }>;
+    
+    // Additional Data
+    [key: string]: any;
+  };
   priority: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 

@@ -14,7 +14,10 @@ const NotificationBell: React.FC = () => {
       <motion.button
         whileHover={{ scale: 1.05 }}
         whileTap={{ scale: 0.95 }}
-        onClick={() => setIsOpen(true)}
+        onClick={() => {
+          console.log('🔔 Notification bell clicked, opening panel...');
+          setIsOpen(true);
+        }}
         className="relative p-2.5 text-gray-600 hover:text-indigo-600 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-blue-50 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg border border-transparent hover:border-indigo-100"
         title={`View Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
       >
