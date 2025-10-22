@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
-import axios from 'axios';
+import api from '../../lib/api';
 import { 
   CheckCircleIcon, 
   ShieldCheckIcon, 
@@ -55,7 +55,7 @@ const LoanApplicationForm: React.FC = () => {
     try {
       console.log('🚀 Submitting loan enquiry:', formData);
       
-      const response = await axios.post('/api/enquiries', {
+      const response = await api.post('/api/enquiries', {
         name: formData.ownerName,
         mobile: formData.phone,
         email: formData.email,

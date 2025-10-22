@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from 'react-query';
 import { useLocation } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { MagnifyingGlassIcon, CreditCardIcon } from '@heroicons/react/24/outline';
-import axios from 'axios';
+import api from '../../lib/api';
 import toast from 'react-hot-toast';
 
 // Inline responsive hook for build compatibility
@@ -47,7 +47,7 @@ function CashfreeList() {
         console.log('🔄 Fetching payment gateway applications...');
         
         // Fetch payment gateway applications from API endpoint
-        const gatewayResponse = await axios.get('/api/cashfree').catch(err => {
+        const gatewayResponse = await api.get('/api/cashfree').catch(err => {
           console.warn('⚠️ Payment gateway API error:', err.message);
           return { data: [] };
         });
@@ -104,7 +104,7 @@ function CashfreeList() {
   // Status update mutation
   const updateStatusMutation = useMutation(
     async ({ id, status }: { id: number; status: string }) => {
-      return axios.patch(`/api/cashfree/${id}/status`, { status });
+      return api.patch(`/api/cashfree/${id}/status`, { status });
     },
     {
       onSuccess: () => {
@@ -120,7 +120,7 @@ function CashfreeList() {
   // Delete mutation
   const deleteMutation = useMutation(
     async (id: number) => {
-      return axios.delete(`/api/cashfree/${id}`);
+      return api.delete(`/api/cashfree/${id}`);
     },
     {
       onSuccess: (response, deletedId) => {
