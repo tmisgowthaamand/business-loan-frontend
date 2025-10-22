@@ -19,6 +19,7 @@ const getBackendURL = () => {
 const BACKEND_URL = getBackendURL();
 
 console.log('🔗 Backend URL configured:', BACKEND_URL);
+console.log('📊 Updated deployment with all localhost data - v1.0.1');
 
 // Create axios instance with base configuration
 const api = axios.create({
