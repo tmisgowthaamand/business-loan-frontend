@@ -73,21 +73,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (credentials: { email: string; password: string }) => {
     try {
-      console.log('🔐 Attempting login with:', credentials.email);
+      console.log('🔐 Attempting fast login with:', credentials.email);
       
-      // Demo users for instant login
+      // Extended demo users for instant login - all use password 'admin123'
       const demoUsers = [
         { id: 1, name: 'Admin User', email: 'admin@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
         { id: 2, name: 'Pankil', email: 'govindamarketing9998@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
         { id: 3, name: 'Venkat', email: 'govindamanager9998@gmail.com', role: 'EMPLOYEE' as const, password: 'admin123' },
-        { id: 4, name: 'Dinesh', email: 'dinesh@gmail.com', role: 'EMPLOYEE' as const, password: 'admin123' }
+        { id: 4, name: 'Dinesh', email: 'dinesh@gmail.com', role: 'EMPLOYEE' as const, password: 'admin123' },
+        { id: 5, name: 'Perivi', email: 'gowthaamankrishna1998@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
+        { id: 6, name: 'Venkat Staff', email: 'gowthaamaneswar1998@gmail.com', role: 'EMPLOYEE' as const, password: 'admin123' },
+        { id: 7, name: 'Harish', email: 'newacttmis@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
+        { id: 8, name: 'Nunciya', email: 'tmsnunciya59@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
+        { id: 9, name: 'Admin User', email: 'admin@businessloan.com', role: 'ADMIN' as const, password: 'admin123' },
+        // Quick test credentials
+        { id: 10, name: 'Test Admin', email: 'admin', role: 'ADMIN' as const, password: 'admin' },
+        { id: 11, name: 'Test Employee', email: 'employee', role: 'EMPLOYEE' as const, password: 'employee' },
+        { id: 12, name: 'Demo Admin', email: 'demo', role: 'ADMIN' as const, password: 'demo' }
       ];
 
       // Check demo users first for instant login
       const demoUser = demoUsers.find(u => u.email === credentials.email && u.password === credentials.password);
       
       if (demoUser) {
-        console.log('✅ Demo user login successful:', demoUser.name);
+        console.log('✅ Fast demo login successful:', demoUser.name);
         
         const userData = {
           id: demoUser.id,
@@ -96,40 +105,30 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           role: demoUser.role
         };
         
-        // Set demo token and user data
+        // Set demo token and user data instantly
         localStorage.setItem('token', 'demo-token-' + demoUser.id);
         localStorage.setItem('user', JSON.stringify(userData));
         
         setUser(userData);
         setIsAuthenticated(true);
         
-        toast.success(`Login successful! Welcome ${userData.name}`);
+        toast.success(`Fast login successful! Welcome ${userData.name} (${userData.role})`);
         return;
       }
       
-      // Fallback to backend auth if not a demo user
-      console.log('🔐 Making request to: /api/auth/login');
+      // If not a demo user, show error instead of backend call for faster UX
+      console.log('❌ Credentials not found in demo users');
+      throw new Error('Invalid credentials. Use demo credentials for instant access.');
       
-      const response = await api.post('/api/auth/login', credentials);
-      const data = response.data;
-      console.log('📦 Response data:', data);
-      
-      if (data.access_token) {
-        console.log('✅ Backend login successful, setting user data...');
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        
-        setUser(data.user);
-        setIsAuthenticated(true);
-        
-        toast.success(`Login successful! Welcome ${data.user.name}`);
-      } else {
-        console.error('❌ Login failed - no access token or bad response');
-        throw new Error(data.message || 'Login failed');
-      }
     } catch (error: any) {
       console.error('❌ Login error:', error);
-      toast.error(error.message || 'Login failed');
+      
+      // Show helpful error message with demo credentials
+      if (error.message.includes('Invalid credentials')) {
+        toast.error('Invalid credentials. Try: admin@gmail.com / admin123');
+      } else {
+        toast.error(error.message || 'Login failed');
+      }
       throw error;
     }
   };

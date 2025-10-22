@@ -67,6 +67,17 @@ function Login() {
     }
   };
 
+  const quickLogin = async (email: string, password: string) => {
+    setLoading(true);
+    try {
+      await login({ email, password });
+    } catch (error) {
+      console.error('❌ Quick login failed:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Show loading skeleton on initial load
   if (initialLoading) {
     return <LoginSkeleton />;
@@ -339,9 +350,43 @@ function Login() {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="text-center text-xs text-gray-500"
+                className="space-y-3"
               >
-                Please enter your credentials to continue
+                <div className="text-center text-xs text-gray-500">
+                  Demo Credentials for Fast Login:
+                </div>
+                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
+                  <div className="text-xs space-y-1">
+                    <div className="font-semibold text-blue-800 mb-2">Quick Access:</div>
+                    <div className="text-blue-700">
+                      <span className="font-medium">Email:</span> admin@gmail.com
+                    </div>
+                    <div className="text-blue-700">
+                      <span className="font-medium">Password:</span> admin123
+                    </div>
+                    <div className="text-blue-600 text-xs mt-2">
+                      Or try: admin/admin, employee/employee, demo/demo
+                    </div>
+                  </div>
+                  <div className="flex gap-2 mt-3">
+                    <button
+                      type="button"
+                      onClick={() => quickLogin('admin@gmail.com', 'admin123')}
+                      disabled={loading}
+                      className="flex-1 py-2 px-3 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
+                    >
+                      Quick Admin
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => quickLogin('govindamanager9998@gmail.com', 'admin123')}
+                      disabled={loading}
+                      className="flex-1 py-2 px-3 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
+                    >
+                      Quick Employee
+                    </button>
+                  </div>
+                </div>
               </motion.div>
             )}
           </motion.form>
