@@ -360,7 +360,7 @@ const LoanApplicationForm: React.FC = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        placeholder="9787373721"
+                        placeholder="+91 9787373721"
                         maxLength={10}
                         className={`w-full px-4 py-3 bg-slate-700/50 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:border-transparent ${
                           phoneValidation.isDuplicate 
