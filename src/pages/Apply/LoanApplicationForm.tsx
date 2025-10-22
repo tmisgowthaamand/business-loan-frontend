@@ -45,7 +45,7 @@ const LoanApplicationForm: React.FC = () => {
 
   // Real-time phone number validation with debounce
   useEffect(() => {
-    if (formData.phone && formData.phone.length >= 10) {
+    if (formData.phone && formData.phone.length === 10) {
       const timeoutId = setTimeout(async () => {
         setPhoneValidation({ isChecking: true, isDuplicate: false });
         
@@ -84,6 +84,19 @@ const LoanApplicationForm: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    
+    // Special handling for phone number - only allow 10 digits
+    if (name === 'phone') {
+      const numericValue = value.replace(/\D/g, ''); // Remove all non-digits
+      if (numericValue.length <= 10) {
+        setFormData(prev => ({
+          ...prev,
+          [name]: numericValue
+        }));
+      }
+      return;
+    }
+    
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -136,6 +149,11 @@ const LoanApplicationForm: React.FC = () => {
     
     if (!formData.businessName || !formData.ownerName || !formData.phone) {
       toast.error('Please fill in all required fields');
+      return;
+    }
+    
+    if (formData.phone.length !== 10) {
+      toast.error('Phone number must be exactly 10 digits');
       return;
     }
     
@@ -342,7 +360,8 @@ const LoanApplicationForm: React.FC = () => {
                         name="phone"
                         value={formData.phone}
                         onChange={handleInputChange}
-                        placeholder="+91 9787373721"
+                        placeholder="9787373721"
+                        maxLength={10}
                         className={`w-full px-4 py-3 bg-slate-700/50 border rounded-lg text-white placeholder-slate-400 focus:outline-none focus:ring-2 focus:border-transparent ${
                           phoneValidation.isDuplicate 
                             ? 'border-red-500 focus:ring-red-400' 
@@ -364,12 +383,20 @@ const LoanApplicationForm: React.FC = () => {
                         Phone number already exists for client: {phoneValidation.existingClient}
                       </p>
                     )}
-                    {!phoneValidation.isDuplicate && !phoneValidation.isChecking && formData.phone.length >= 10 && (
+                    {!phoneValidation.isDuplicate && !phoneValidation.isChecking && formData.phone.length === 10 && (
                       <p className="mt-2 text-sm text-green-400 flex items-center">
                         <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
                         </svg>
                         Phone number is available
+                      </p>
+                    )}
+                    {formData.phone.length > 0 && formData.phone.length < 10 && (
+                      <p className="mt-2 text-sm text-yellow-400 flex items-center">
+                        <svg className="w-4 h-4 mr-1" fill="currentColor" viewBox="0 0 20 20">
+                          <path fillRule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+                        </svg>
+                        Please enter exactly 10 digits ({formData.phone.length}/10)
                       </p>
                     )}
                   </div>
