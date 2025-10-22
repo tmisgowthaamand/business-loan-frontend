@@ -437,8 +437,11 @@ const DocumentVerification: React.FC = () => {
                                   Required
                                 </span>
                               </div>
+                              <p className="text-xs text-gray-600 font-medium mb-1">
+                                📋 Enquiry: <span className="font-semibold text-blue-700">{document.enquiry.name}</span>
+                              </p>
                               <p className="text-xs text-gray-500">
-                                Document Type: <span className="font-semibold text-gray-700">{document.type}</span>
+                                📱 {document.enquiry.mobile} • {document.enquiry.businessType || 'Business Type Not Specified'}
                               </p>
                               <p className="text-xs text-gray-500">
                                 Uploaded {new Date(document.uploadedAt).toLocaleDateString()}
