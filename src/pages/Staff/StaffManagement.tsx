@@ -131,7 +131,18 @@ function StaffManagement() {
           '✅ Verification email sent successfully!' : 
           '❌ Failed to send verification email - check SMTP settings';
         
-        toast.success(`Staff member created! ${emailStatus}`);
+        // Show success message prominently
+        toast.success(`🎉 Staff member created successfully! ${emailStatus}`, {
+          duration: 5000,
+          position: 'top-right',
+          style: {
+            background: '#10B981',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: '14px'
+          }
+        });
+        
         setShowInviteForm(false);
         reset();
         
@@ -196,7 +207,15 @@ function StaffManagement() {
         return { previousStaff, previousStats };
       },
       onSuccess: () => {
-        toast.success('Staff member deleted successfully!');
+        toast.success('🗑️ Staff member deleted successfully!', {
+          duration: 3000,
+          position: 'top-right',
+          style: {
+            background: '#EF4444',
+            color: '#fff',
+            fontWeight: 'bold'
+          }
+        });
         
         // Background sync after 100ms
         setTimeout(() => {
@@ -241,7 +260,15 @@ function StaffManagement() {
         return { previousStaff };
       },
       onSuccess: () => {
-        toast.success('Access revoked successfully! Notification sent via email.');
+        toast.success('🚫 Access revoked successfully! Notification sent via email.', {
+          duration: 4000,
+          position: 'top-right',
+          style: {
+            background: '#F59E0B',
+            color: '#fff',
+            fontWeight: 'bold'
+          }
+        });
         
         setTimeout(() => {
           queryClient.invalidateQueries('staff');
@@ -280,7 +307,15 @@ function StaffManagement() {
         return { previousStaff };
       },
       onSuccess: (response) => {
-        toast.success(`Access granted! ${response.data.newAccessLinkSent ? 'New access link sent via email.' : 'Failed to send email.'}`);
+        toast.success(`✅ Access granted! ${response.data.newAccessLinkSent ? 'New access link sent via email.' : 'Failed to send email.'}`, {
+          duration: 4000,
+          position: 'top-right',
+          style: {
+            background: '#10B981',
+            color: '#fff',
+            fontWeight: 'bold'
+          }
+        });
         
         setTimeout(() => {
           queryClient.invalidateQueries('staff');
@@ -303,7 +338,15 @@ function StaffManagement() {
     },
     {
       onSuccess: (response) => {
-        toast.success(`Verification email ${response.data.emailSent ? 'sent successfully!' : 'failed to send.'}`);
+        toast.success(`📧 Verification email ${response.data.emailSent ? 'sent successfully!' : 'failed to send.'}`, {
+          duration: 4000,
+          position: 'top-right',
+          style: {
+            background: response.data.emailSent ? '#10B981' : '#EF4444',
+            color: '#fff',
+            fontWeight: 'bold'
+          }
+        });
         
         setTimeout(() => {
           queryClient.invalidateQueries('staff');
@@ -327,9 +370,8 @@ function StaffManagement() {
   };
 
   const handleDeleteStaff = (userId: number) => {
-    if (window.confirm('Are you sure you want to delete this staff member?')) {
-      deleteMutation.mutate(userId);
-    }
+    // Direct delete without confirmation dialog
+    deleteMutation.mutate(userId);
   };
 
   const handleViewStaff = (member: StaffMember) => {
@@ -870,11 +912,7 @@ function StaffManagement() {
                         
                         {member.hasAccess ? (
                           <button
-                            onClick={() => {
-                              if (window.confirm('Are you sure you want to revoke access for this staff member?')) {
-                                revokeAccessMutation.mutate(member.id);
-                              }
-                            }}
+                            onClick={() => revokeAccessMutation.mutate(member.id)}
                             disabled={revokeAccessMutation.isLoading}
                             className="inline-flex items-center px-2 py-1 border border-red-300 rounded-md text-red-700 bg-red-50 hover:bg-red-100 disabled:opacity-50 transition-colors"
                             title="Revoke Access"
