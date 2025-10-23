@@ -135,29 +135,58 @@ function StaffManagement() {
           '✅ Verification email sent successfully!' : 
           '❌ Failed to send verification email - check SMTP settings';
         
-        // Show success message prominently
-        toast.success(`🎉 Staff member created successfully! ${emailStatus}`, {
-          duration: 5000,
-          position: 'top-right',
-          style: {
-            background: '#10B981',
-            color: '#fff',
-            fontWeight: 'bold',
-            fontSize: '14px'
+        // Show enhanced success message prominently in screen
+        toast.success(
+          `🎉 Staff member created successfully!\n${emailStatus}\n📋 Check notification panel for staff notification!`, 
+          {
+            duration: 8000,
+            position: 'top-center',
+            style: {
+              background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+              color: '#fff',
+              fontWeight: 'bold',
+              fontSize: '16px',
+              padding: '20px',
+              borderRadius: '12px',
+              boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
+              border: '2px solid #34D399',
+              maxWidth: '500px',
+              textAlign: 'center',
+              whiteSpace: 'pre-line'
+            }
           }
-        });
+        );
+        
+        // Also show a secondary notification about the notification panel
+        setTimeout(() => {
+          toast.success('🔔 New staff notification created! Check the notification bell.', {
+            duration: 6000,
+            position: 'top-right',
+            style: {
+              background: '#3B82F6',
+              color: '#fff',
+              fontWeight: 'bold',
+              fontSize: '14px'
+            }
+          });
+        }, 1000);
         
         setShowInviteForm(false);
         reset();
         
-        // Background sync after 100ms
+        // Immediate refresh of notifications (no delay)
+        queryClient.invalidateQueries('staff');
+        queryClient.invalidateQueries('staff-stats');
+        // Force refresh notifications immediately for better UX
+        queryClient.invalidateQueries('global-notifications');
+        queryClient.invalidateQueries('global-notification-count');
+        
+        // Also trigger a second refresh after 2 seconds to ensure notification appears
         setTimeout(() => {
-          queryClient.invalidateQueries('staff');
-          queryClient.invalidateQueries('staff-stats');
-          // Invalidate notifications to show the new staff notification
+          console.log('🔔 Force refreshing notifications after staff creation...');
           queryClient.invalidateQueries('global-notifications');
           queryClient.invalidateQueries('global-notification-count');
-        }, 100);
+        }, 2000);
       },
       onError: (error: any, _, context) => {
         // Rollback optimistic updates

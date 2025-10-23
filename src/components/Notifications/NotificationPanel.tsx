@@ -440,21 +440,82 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
                     </div>
                   )}
                   
-                  {/* Test buttons for development */}
+                  {/* Test buttons for development and deployment */}
                   <div className="mt-4 space-y-2">
                     <button
                       onClick={async () => {
                         try {
-                          await api.post('/api/notifications/test/staff-added');
-                          toast.success('Test staff notification created!');
-                          refreshNotifications();
-                        } catch (error) {
-                          toast.error('Failed to create test notification');
+                          console.log('🔔 Testing staff notification creation...');
+                          const response = await api.post('/api/notifications/test/staff-added');
+                          console.log('🔔 Staff notification response:', response.data);
+                          toast.success(`✅ Staff notification created! (${response.data.count} notifications)`);
+                          
+                          // Force refresh after 1 second
+                          setTimeout(() => {
+                            refreshNotifications();
+                          }, 1000);
+                        } catch (error: any) {
+                          console.error('❌ Staff notification test failed:', error);
+                          toast.error(`Failed to create staff notification: ${error.response?.data?.message || error.message}`);
                         }
                       }}
                       className="px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       👤 Test Staff Notification
+                    </button>
+                    
+                    <button
+                      onClick={async () => {
+                        try {
+                          console.log('🔔 Running full deployment test...');
+                          const response = await api.post('/api/notifications/test/staff-notification-full');
+                          console.log('🔔 Full test response:', response.data);
+                          
+                          if (response.data.status === 'success') {
+                            toast.success(`🚀 Deployment test passed! Created ${response.data.results.notificationsCreated} notifications`);
+                          } else {
+                            toast.error(`❌ Deployment test failed: ${response.data.message}`);
+                          }
+                          
+                          // Force refresh after 1 second
+                          setTimeout(() => {
+                            refreshNotifications();
+                          }, 1000);
+                        } catch (error: any) {
+                          console.error('❌ Deployment test failed:', error);
+                          toast.error(`Deployment test failed: ${error.response?.data?.message || error.message}`);
+                        }
+                      }}
+                      className="px-3 py-2 bg-green-600 text-white text-xs font-medium rounded-lg hover:bg-green-700 transition-colors"
+                    >
+                      🚀 Full Deployment Test
+                    </button>
+                    
+                    <button
+                      onClick={async () => {
+                        try {
+                          console.log('🔔 Testing notification system readiness...');
+                          const response = await api.get('/api/notifications/test/deployment-ready');
+                          console.log('🔔 Deployment readiness:', response.data);
+                          
+                          if (response.data.status === 'success') {
+                            toast.success(`✅ System ready for ${response.data.environment.isRender ? 'Render' : response.data.environment.isVercel ? 'Vercel' : 'Local'} deployment!`);
+                          } else {
+                            toast.error(`❌ System not ready: ${response.data.message}`);
+                          }
+                          
+                          // Force refresh after 1 second
+                          setTimeout(() => {
+                            refreshNotifications();
+                          }, 1000);
+                        } catch (error: any) {
+                          console.error('❌ Deployment readiness test failed:', error);
+                          toast.error(`Readiness test failed: ${error.response?.data?.message || error.message}`);
+                        }
+                      }}
+                      className="px-3 py-2 bg-purple-600 text-white text-xs font-medium rounded-lg hover:bg-purple-700 transition-colors"
+                    >
+                      🔍 Check Deployment Ready
                     </button>
                   </div>
                 </div>
