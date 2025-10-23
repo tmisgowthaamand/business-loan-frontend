@@ -32,12 +32,12 @@ console.log('📊 Updated deployment with all localhost data - v1.0.1');
 
 // Show login credentials in production when using mock data
 if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-  console.log('🔐 PRODUCTION LOGIN CREDENTIALS:');
-  console.log('👑 Admin: govindamarketing9998@gmail.com / admin123');
+  console.log('🔐 PRODUCTION LOGIN CREDENTIALS (EXACT LOCALHOST PASSWORDS):');
+  console.log('👑 Admin: govindamarketing9998@gmail.com / pankil123');
   console.log('👑 Admin: admin@gmail.com / admin123');
-  console.log('👑 Admin: newclientmgmt@gmail.com / admin123');
-  console.log('👤 Employee: govindamanager9998@gmail.com / employee123');
-  console.log('👤 Employee: dinesh@gmail.com / employee123');
+  console.log('👑 Admin: newclientmgmt@gmail.com / harish123');
+  console.log('👤 Employee: govindamanager9998@gmail.com / venkat123');
+  console.log('👤 Employee: dinesh@gmail.com / dinesh123');
 }
 
 // Create axios instance with base configuration
