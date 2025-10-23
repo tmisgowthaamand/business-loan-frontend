@@ -50,6 +50,9 @@
     }
   ],
   "env": {
-    "NODE_ENV": "production"
+    "NODE_ENV": "production",
+    "VITE_BACKEND_URL": "https://business-loan-backend.onrender.com",
+    "VITE_USE_MOCK_DATA": "true",
+    "VITE_APP_ENVIRONMENT": "production"
   }
 }
