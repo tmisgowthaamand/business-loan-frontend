@@ -5,6 +5,7 @@ import { MagnifyingGlassIcon, UserPlusIcon, TrashIcon, CheckIcon, XMarkIcon, Env
 import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
+import { useDashboardRefresh } from '../../hooks/useDashboardRefresh';
 
 interface StaffFormData {
   name: string;
@@ -41,6 +42,7 @@ function StaffManagement() {
   const [visiblePasswords, setVisiblePasswords] = useState<{[key: number]: boolean}>({});
   const [viewingStaff, setViewingStaff] = useState<StaffMember | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
+  const { refreshAfterStaff } = useDashboardRefresh();
   const [staffAvailability, setStaffAvailability] = useState<{[key: number]: 'Active' | 'Inactive'}>({
     1: 'Active',
     2: 'Active', 
@@ -180,6 +182,9 @@ function StaffManagement() {
         // Force refresh notifications immediately for better UX
         queryClient.invalidateQueries('global-notifications');
         queryClient.invalidateQueries('global-notification-count');
+        
+        // Trigger dashboard refresh immediately
+        refreshAfterStaff();
         
         // Also trigger a second refresh after 2 seconds to ensure notification appears
         setTimeout(() => {

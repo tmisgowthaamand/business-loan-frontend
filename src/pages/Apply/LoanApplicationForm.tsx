@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import api from '../../lib/api';
+import { useDashboardRefresh } from '../../hooks/useDashboardRefresh';
 import { 
   CheckCircleIcon, 
   ShieldCheckIcon, 
@@ -24,6 +25,7 @@ interface FormData {
 
 const LoanApplicationForm: React.FC = () => {
   const navigate = useNavigate();
+  const { refreshAfterEnquiry } = useDashboardRefresh();
   const [formData, setFormData] = useState<FormData>({
     businessName: '',
     ownerName: '',
@@ -187,6 +189,9 @@ const LoanApplicationForm: React.FC = () => {
       console.log('✅ Enquiry submitted successfully:', response.data);
       
       toast.success('Application submitted successfully! Our specialists will reach out within 24 hours.');
+      
+      // Trigger dashboard refresh immediately
+      await refreshAfterEnquiry();
       
       // Reset form
       setFormData({

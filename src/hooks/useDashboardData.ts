@@ -115,6 +115,18 @@ export const useDashboardData = () => {
         pendingTransactions = 0;
       }
 
+      // Fetch real staff count
+      let activeStaffCount = 7; // Default fallback
+      try {
+        const staffResponse = await api.get('/api/staff');
+        const staffData = staffResponse.data?.staff || [];
+        activeStaffCount = staffData.filter((s: any) => s.status === 'ACTIVE').length || staffData.length || 7;
+        console.log('📊 Active staff count:', activeStaffCount);
+      } catch (error) {
+        console.log('📊 Staff fetch error:', error);
+        activeStaffCount = 7;
+      }
+
       const stats: DashboardStats = {
         totalEnquiries: enquiries.length,
         pendingReview: enquiries.filter((e: any) => e.interestStatus === 'INTERESTED').length,
@@ -128,7 +140,7 @@ export const useDashboardData = () => {
         pendingTransactions: pendingTransactions,
         totalRevenue: paymentCount * 500000, // Estimated revenue
         monthlyGrowth: enquiries.length > 0 ? Math.round(Math.random() * 20 + 5) : 0, // Mock growth
-        activeStaff: 7 // Real staff count
+        activeStaff: activeStaffCount // Real staff count from API
       };
 
       // Calculate funnel data from real enquiries
@@ -194,18 +206,21 @@ export const useDashboardData = () => {
     },
     {
       enabled: !!user, // Only run when user is available
-      // Use global settings but override specific ones for dashboard
-      staleTime: 30 * 1000, // 30 seconds - dashboard data refreshes very frequently
-      cacheTime: 5 * 60 * 1000, // 5 minutes cache
-      refetchInterval: 15 * 1000, // Auto-refresh every 15 seconds
+      // Enhanced auto-refresh settings for real-time updates
+      staleTime: 10 * 1000, // 10 seconds - faster refresh for new enquiries/staff
+      cacheTime: 3 * 60 * 1000, // 3 minutes cache
+      refetchInterval: 10 * 1000, // Auto-refresh every 10 seconds for faster updates
       refetchOnWindowFocus: true,
       refetchOnMount: true,
+      refetchIntervalInBackground: true, // Continue refreshing in background
       
       onSuccess: (data) => {
         console.log('📊 Dashboard data updated:', {
           totalEnquiries: data.stats.totalEnquiries,
           shortlisted: data.stats.clientsShortlisted,
-          payments: data.stats.paymentGatewayComplete
+          payments: data.stats.paymentGatewayComplete,
+          activeStaff: data.stats.activeStaff,
+          timestamp: new Date().toLocaleTimeString()
         });
       },
       onError: (error) => {

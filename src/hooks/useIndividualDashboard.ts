@@ -215,18 +215,21 @@ export const useIndividualDashboard = () => {
     },
     {
       enabled: !!user, // Only run when user is available
-      staleTime: 60 * 1000, // 1 minute
-      cacheTime: 5 * 60 * 1000, // 5 minutes cache
-      refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds
+      staleTime: 15 * 1000, // 15 seconds - faster refresh for individual dashboard
+      cacheTime: 3 * 60 * 1000, // 3 minutes cache
+      refetchInterval: 15 * 1000, // Auto-refresh every 15 seconds for faster updates
       refetchOnWindowFocus: true,
       refetchOnMount: true,
+      refetchIntervalInBackground: true, // Continue refreshing in background
       
       onSuccess: (data) => {
         console.log('👤 Individual dashboard data updated:', {
           myEnquiries: data.stats.myEnquiries,
           myShortlisted: data.stats.myShortlisted,
           myPayments: data.stats.myPaymentApplications,
-          successRate: data.stats.successRate
+          successRate: data.stats.successRate,
+          totalClients: data.stats.totalClientsHandled,
+          timestamp: new Date().toLocaleTimeString()
         });
       },
       onError: (error) => {

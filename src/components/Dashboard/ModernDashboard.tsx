@@ -1,5 +1,4 @@
 import { motion } from 'framer-motion';
-import { useTranslation } from 'react-i18next';
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
@@ -104,7 +103,6 @@ const mockDashboardData = {
 
 function ModernDashboard() {
   const { user } = useAuth();
-  const { t } = useTranslation();
   const navigate = useNavigate();
   const [selectedView, setSelectedView] = useState('overview');
   const { data: currentData, loading, error, refetch } = useDashboardData();
@@ -213,10 +211,10 @@ function ModernDashboard() {
           <div className="flex items-center justify-between">
             <div>
               <h1 className="text-3xl font-bold mb-2">
-                {t('dashboard.welcome', `Welcome Back, ${user?.name || 'User'}!`)}
+                Welcome Back, {user?.name || 'User'}!
               </h1>
               <p className="text-blue-100 text-lg">
-                {t('dashboard.subtitle', "Here's what's happening with your business today.")}
+                Here's what's happening with your business today.
               </p>
             </div>
             <div className="flex items-center space-x-4">
@@ -224,12 +222,12 @@ function ModernDashboard() {
                 <div className="flex items-center justify-end space-x-2 mb-1">
                   <div className={`w-2 h-2 rounded-full ${loading ? 'bg-yellow-300 animate-pulse' : 'bg-green-300'}`}></div>
                   <p className="text-blue-100 text-sm">
-                    {loading ? 'Updating...' : 'Auto-refreshes every 15 seconds'}
-                  </p>
+                  {loading ? 'Updating...' : 'Auto-refreshes every 10 seconds'}
+                </p>
                 </div>
                 <p className="text-blue-200 text-xs">
                   {currentData?.stats ? 
-                    `${currentData.stats.totalEnquiries} total enquiries • Last updated: ${new Date().toLocaleTimeString()}` :
+                    `${currentData.stats.totalEnquiries} enquiries • ${currentData.stats.activeStaff} staff • Last updated: ${new Date().toLocaleTimeString()}` :
                     'Loading data...'
                   }
                 </p>
@@ -276,7 +274,7 @@ function ModernDashboard() {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-6">
         {[
           {
-            title: t('dashboard.totalEnquiries', 'Total Enquiries'),
+            title: 'Total Enquiries',
             value: currentData.stats.totalEnquiries,
             icon: DocumentTextIcon,
             color: 'from-blue-500 to-blue-600',
@@ -284,7 +282,7 @@ function ModernDashboard() {
             trend: 'up'
           },
           {
-            title: t('dashboard.documentsAwaiting', 'Documents Awaiting'),
+            title: 'Documents Awaiting',
             value: currentData.stats.documentsAwaiting,
             icon: ClockIcon,
             color: 'from-orange-500 to-red-500',
@@ -292,7 +290,7 @@ function ModernDashboard() {
             trend: 'up'
           },
           {
-            title: t('dashboard.clientsShortlisted', 'Clients Shortlisted'),
+            title: 'Clients Shortlisted',
             value: currentData.stats.clientsShortlisted,
             icon: CheckCircleIcon,
             color: 'from-green-500 to-emerald-600',
@@ -300,7 +298,7 @@ function ModernDashboard() {
             trend: 'up'
           },
           {
-            title: t('dashboard.paymentComplete', 'Payment Gateway Complete'),
+            title: 'Payment Gateway Complete',
             value: currentData.stats.paymentGatewayComplete,
             icon: CurrencyRupeeIcon,
             color: 'from-purple-500 to-indigo-600',
@@ -308,7 +306,7 @@ function ModernDashboard() {
             trend: 'up'
           },
           {
-            title: t('dashboard.totalTransactions', 'Total Transactions'),
+            title: 'Total Transactions',
             value: currentData.stats.totalTransactions,
             icon: ChartBarIcon,
             color: 'from-teal-500 to-cyan-600',
@@ -358,7 +356,7 @@ function ModernDashboard() {
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-gray-900">
-              {t('dashboard.enquiryFunnel', 'Enquiry Funnel')}
+              Enquiry Funnel
             </h2>
             <ChartBarIcon className="h-6 w-6 text-gray-400" />
           </div>
@@ -409,7 +407,7 @@ function ModernDashboard() {
           className="bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
         >
           <h2 className="text-xl font-bold text-gray-900 mb-6">
-            {t('dashboard.rolePermissions', 'Role Permissions')}
+            Role Permissions
           </h2>
           
           <div className="space-y-4">
@@ -446,7 +444,7 @@ function ModernDashboard() {
       >
         <div className="flex items-center justify-between mb-6">
           <h2 className="text-xl font-bold text-gray-900">
-            {t('dashboard.recentEnquiries', 'Recent Enquiries')}
+            Recent Enquiries
           </h2>
           <button 
             onClick={handleViewAllEnquiries}
