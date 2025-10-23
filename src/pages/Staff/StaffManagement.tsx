@@ -13,6 +13,7 @@ interface StaffFormData {
   role: 'ADMIN' | 'EMPLOYEE';
   department?: string;
   position?: string;
+  clientName?: string;
 }
 
 interface StaffMember {
@@ -23,10 +24,13 @@ interface StaffMember {
   role: 'ADMIN' | 'EMPLOYEE';
   status: 'ACTIVE' | 'PENDING' | 'INACTIVE';
   hasAccess: boolean;
+  department?: string;
   position?: string;
+  verified?: boolean;
+  clientName?: string;
   lastLogin?: string;
   createdAt: string;
-  updatedAt: string;
+  updatedAt?: string;
 }
 
 function StaffManagement() {
@@ -404,13 +408,13 @@ function StaffManagement() {
     }
   };
 
-  // Function to get client count for each staff member
+  // Function to get client count for each staff member - UPDATED TO MATCH MOCK DATA
   const getClientCount = (staffId: number) => {
     const clientCounts: {[key: number]: number} = {
       1: 3, // Perivi - 3 clients
       2: 2, // Venkat - 2 clients
-      3: 4, // Harish - 4 clients
-      4: 0, // Dinesh - 0 clients (Available for new clients)
+      3: 3, // Harish - 3 clients (corrected from 4)
+      4: 0, // Dinesh - 0 clients (Available for Assignment - Ready for New Clients)
       5: 1, // Nunciya - 1 client
       6: 2, // Admin User (business) - 2 clients
       7: 1  // Admin User (gmail) - 1 client
@@ -418,13 +422,13 @@ function StaffManagement() {
     return clientCounts[staffId] || 0;
   };
 
-  // Function to get assigned client names for each staff member
+  // Function to get assigned client names for each staff member - UPDATED TO MATCH MOCK DATA
   const getAssignedClientName = (staffId: number) => {
     const clientAssignments: {[key: number]: string | null} = {
       1: 'Rajesh Kumar, Priya Sharma, Amit Patel', // Perivi - 3 clients
-      2: 'Sunita Gupta, Vikram Singh', // Venkat - 2 clients
-      3: 'Anita Desai, Ravi Mehta, Sanjay Joshi, Kavita Rao', // Harish - 4 clients
-      4: null, // Dinesh - 0 clients (Available)
+      2: 'Sunita Gupta, Vikram Singh', // Venkat - 2 clients  
+      3: 'Anita Desai, Ravi Mehta, Sanjay Joshi', // Harish - 3 clients
+      4: null, // Dinesh - Available for Assignment - Ready for New Clients
       5: 'Deepak Verma', // Nunciya - 1 client
       6: 'Neha Agarwal, Rohit Sharma', // Admin User (business) - 2 clients
       7: 'Manish Gupta'  // Admin User (gmail) - 1 client
@@ -824,10 +828,10 @@ function StaffManagement() {
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="text-sm text-gray-900">
-                        {getAssignedClientName(member.id) ? (
+                        {(member.clientName || getAssignedClientName(member.id)) ? (
                           <div className="max-w-xs">
-                            <div className="truncate font-medium" title={getAssignedClientName(member.id) || ''}>
-                              {getAssignedClientName(member.id)}
+                            <div className="truncate font-medium" title={member.clientName || getAssignedClientName(member.id) || ''}>
+                              {member.clientName || getAssignedClientName(member.id)}
                             </div>
                             <div className="text-xs text-gray-500">
                               {getClientCount(member.id)} {getClientCount(member.id) === 1 ? 'client' : 'clients'}
@@ -837,7 +841,7 @@ function StaffManagement() {
                           <div className="flex items-center space-x-2">
                             <span className="text-green-600 font-medium">Available for Assignment</span>
                             <span className="inline-flex items-center px-2 py-1 text-xs font-medium bg-green-100 text-green-800 rounded-full">
-                              Ready for New Client
+                              Ready for New Clients
                             </span>
                           </div>
                         )}
