@@ -154,6 +154,9 @@ function StaffManagement() {
         setTimeout(() => {
           queryClient.invalidateQueries('staff');
           queryClient.invalidateQueries('staff-stats');
+          // Invalidate notifications to show the new staff notification
+          queryClient.invalidateQueries('global-notifications');
+          queryClient.invalidateQueries('global-notification-count');
         }, 100);
       },
       onError: (error: any, _, context) => {
@@ -225,6 +228,9 @@ function StaffManagement() {
         setTimeout(() => {
           queryClient.invalidateQueries('staff');
           queryClient.invalidateQueries('staff-stats');
+          // Invalidate notifications to refresh notification panel
+          queryClient.invalidateQueries('global-notifications');
+          queryClient.invalidateQueries('global-notification-count');
         }, 100);
       },
       onError: (error: any, _, context) => {

@@ -439,6 +439,24 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
                       </button>
                     </div>
                   )}
+                  
+                  {/* Test buttons for development */}
+                  <div className="mt-4 space-y-2">
+                    <button
+                      onClick={async () => {
+                        try {
+                          await api.post('/api/notifications/test/staff-added');
+                          toast.success('Test staff notification created!');
+                          refreshNotifications();
+                        } catch (error) {
+                          toast.error('Failed to create test notification');
+                        }
+                      }}
+                      className="px-3 py-2 bg-blue-600 text-white text-xs font-medium rounded-lg hover:bg-blue-700 transition-colors"
+                    >
+                      👤 Test Staff Notification
+                    </button>
+                  </div>
                 </div>
               )}
             </div>
