@@ -47,9 +47,9 @@ export const useDashboardData = () => {
   const { user } = useAuth();
 
   const { data, isLoading: loading, error, refetch } = useQuery(
-    'dashboard-data',
+    ['dashboard-data', user?.id], // Include user ID in query key for proper caching
     async (): Promise<DashboardData> => {
-      console.log('📊 Fetching dashboard data...');
+      console.log('📊 [VERCEL] Fetching dashboard data for user:', user?.name);
       
       // Fetch real enquiry data with consistent API endpoints
       let enquiries = [];
@@ -184,19 +184,39 @@ export const useDashboardData = () => {
         }
       ];
 
-      // Get recent enquiries (last 10 for better visibility)
+      // Get recent enquiries with proper staff assignment display
       const recentEnquiries: RecentEnquiry[] = enquiries
         .sort((a: any, b: any) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 10) // Show more recent enquiries
-        .map((enquiry: any) => ({
-          id: enquiry.id,
-          name: enquiry.name || enquiry.businessName || `Client ${enquiry.id}`,
-          mobile: enquiry.mobile || 'N/A',
-          businessType: enquiry.businessType || 'General Business',
-          interestStatus: enquiry.interestStatus || 'INTERESTED',
-          createdAt: enquiry.createdAt || new Date().toISOString(),
-          staff: enquiry.staff || { name: enquiry.assignedStaff || 'Unassigned' }
-        }));
+        .map((enquiry: any) => {
+          // Enhanced staff assignment logic for Vercel
+          let staffName = 'Unassigned';
+          if (enquiry.staff?.name) {
+            staffName = enquiry.staff.name;
+          } else if (enquiry.assignedStaff) {
+            staffName = enquiry.assignedStaff;
+          } else if (enquiry.staffId) {
+            // Map staff ID to name for better display
+            const staffMapping = {
+              1: 'Perivi (Admin)',
+              2: 'Venkat (Operations)', 
+              3: 'Harish (Client Mgmt)',
+              4: 'Dinesh (Processing)',
+              5: 'Nunciya (Admin)'
+            };
+            staffName = staffMapping[enquiry.staffId] || `Staff ID: ${enquiry.staffId}`;
+          }
+          
+          return {
+            id: enquiry.id,
+            name: enquiry.name || enquiry.businessName || `Client ${enquiry.id}`,
+            mobile: enquiry.mobile || 'N/A',
+            businessType: enquiry.businessType || 'General Business',
+            interestStatus: enquiry.interestStatus || 'INTERESTED',
+            createdAt: enquiry.createdAt || new Date().toISOString(),
+            staff: { name: staffName }
+          };
+        });
 
       return {
         stats,
@@ -206,13 +226,17 @@ export const useDashboardData = () => {
     },
     {
       enabled: !!user, // Only run when user is available
-      // Enhanced auto-refresh settings for real-time updates
-      staleTime: 10 * 1000, // 10 seconds - faster refresh for new enquiries/staff
-      cacheTime: 3 * 60 * 1000, // 3 minutes cache
-      refetchInterval: 10 * 1000, // Auto-refresh every 10 seconds for faster updates
+      // Vercel-optimized refresh settings for better performance
+      staleTime: 30 * 1000, // 30 seconds - balanced refresh for Vercel
+      cacheTime: 10 * 60 * 1000, // 10 minutes cache for Vercel persistence
+      refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds for Vercel optimization
       refetchOnWindowFocus: true,
       refetchOnMount: true,
-      refetchIntervalInBackground: true, // Continue refreshing in background
+      refetchIntervalInBackground: false, // Disable background refresh on Vercel for performance
+      
+      // Retry configuration for Vercel
+      retry: 3,
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 30000),
       
       onSuccess: (data) => {
         console.log('📊 Dashboard data updated:', {

@@ -6,6 +6,8 @@ import api from '../../lib/api';
 import toast from 'react-hot-toast';
 import { useForm } from 'react-hook-form';
 import { useDashboardRefresh } from '../../hooks/useDashboardRefresh';
+import { useStaffPermissions } from '../../hooks/useStaffPermissions';
+import { useAuth } from '../../context/AuthContext';
 
 interface StaffFormData {
   name: string;
@@ -35,6 +37,8 @@ interface StaffMember {
 }
 
 function StaffManagement() {
+  const { user } = useAuth();
+  const permissions = useStaffPermissions();
   const [showInviteForm, setShowInviteForm] = useState(false);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedRole, setSelectedRole] = useState<'ADMIN' | 'EMPLOYEE' | null>(null);
@@ -43,6 +47,36 @@ function StaffManagement() {
   const [viewingStaff, setViewingStaff] = useState<StaffMember | null>(null);
   const [showViewModal, setShowViewModal] = useState(false);
   const { refreshAfterStaff } = useDashboardRefresh();
+
+  // Check permissions - only admin@gmail.com can access staff management
+  if (!permissions.canManageStaff) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-white rounded-2xl shadow-xl p-8 max-w-md w-full mx-4 text-center"
+        >
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <XMarkIcon className="w-8 h-8 text-red-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Access Denied</h2>
+          <p className="text-gray-600 mb-4">
+            Only <strong>admin@gmail.com</strong> has permission to manage staff members.
+          </p>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 mb-4">
+            <p className="text-sm text-blue-800">
+              Current user: <strong>{user?.email}</strong><br/>
+              Role: <strong>{user?.role}</strong>
+            </p>
+          </div>
+          <p className="text-sm text-gray-500">
+            Please contact the administrator if you need access to staff management.
+          </p>
+        </motion.div>
+      </div>
+    );
+  }
   const [staffAvailability, setStaffAvailability] = useState<{[key: number]: 'Active' | 'Inactive'}>({
     1: 'Active',
     2: 'Active', 

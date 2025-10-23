@@ -55,16 +55,23 @@ function Login() {
   const onSubmit = async (data: LoginForm) => {
     setLoading(true);
     try {
-      console.log('🔐 Attempting login...');
+      console.log('🚀 [VERCEL] Attempting staff login...');
       await login(data);
-      console.log('✅ Login successful, authentication state should update...');
+      console.log('✅ [VERCEL] Login successful, authentication state should update...');
       // Navigation will be handled by the useEffect above
     } catch (error) {
-      console.error('❌ Login failed:', error);
-      // Error is handled in AuthContext
+      console.error('❌ [VERCEL] Login failed:', error);
+      // Error is handled in AuthContext with Vercel-specific fallbacks
     } finally {
       setLoading(false);
     }
+  };
+
+  // Quick login helper for Vercel deployment
+  const quickLogin = async (email: string, password: string) => {
+    setValue('email', email);
+    setValue('password', password);
+    await onSubmit({ email, password });
   };
 
 
@@ -335,6 +342,61 @@ function Login() {
                 )}
               </motion.button>
             </div>
+
+            {/* Quick Login Buttons for Vercel Deployment */}
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.8 }}
+              className="mt-6 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border border-blue-200"
+            >
+              <div className="text-center mb-3">
+                <h3 className="text-sm font-semibold text-blue-800 mb-1">🚀 Vercel Deployment - Quick Login</h3>
+                <p className="text-xs text-blue-600">Click any button below for instant access</p>
+              </div>
+              
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <button
+                  type="button"
+                  onClick={() => quickLogin('gowthaamankrishna1998@gmail.com', '12345678')}
+                  className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition-colors duration-200 flex items-center justify-center space-x-1"
+                >
+                  <ShieldCheckIcon className="h-4 w-4" />
+                  <span>Perivi (Admin)</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => quickLogin('gowthaamaneswar1998@gmail.com', '12345678')}
+                  className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-lg transition-colors duration-200 flex items-center justify-center space-x-1"
+                >
+                  <UserIcon className="h-4 w-4" />
+                  <span>Venkat (Employee)</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => quickLogin('newacttmis@gmail.com', '12345678')}
+                  className="px-3 py-2 bg-green-600 hover:bg-green-700 text-white text-xs rounded-lg transition-colors duration-200 flex items-center justify-center space-x-1"
+                >
+                  <ShieldCheckIcon className="h-4 w-4" />
+                  <span>Harish (Admin)</span>
+                </button>
+                
+                <button
+                  type="button"
+                  onClick={() => quickLogin('dinesh@gmail.com', '12345678')}
+                  className="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white text-xs rounded-lg transition-colors duration-200 flex items-center justify-center space-x-1"
+                >
+                  <UserIcon className="h-4 w-4" />
+                  <span>Dinesh (Employee)</span>
+                </button>
+              </div>
+              
+              <div className="mt-2 text-center">
+                <p className="text-xs text-blue-500">All passwords: 12345678</p>
+              </div>
+            </motion.div>
 
           </motion.form>
         </div>

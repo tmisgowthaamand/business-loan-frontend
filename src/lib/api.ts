@@ -42,14 +42,20 @@ if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
   console.log('👑 Admin: admin@gmail.com / 12345678 (Admin User)');
 }
 
-// Create axios instance with base configuration
+// Create axios instance with Vercel-optimized configuration
 const api = axios.create({
   baseURL: BACKEND_URL,
-  timeout: 30000, // Increased timeout to 30 seconds
+  timeout: 60000, // Increased timeout to 60 seconds for Vercel cold starts
   headers: {
     'Content-Type': 'application/json',
+    'Cache-Control': 'no-cache', // Prevent caching issues on Vercel
   },
   withCredentials: false,
+  // Vercel-specific retry configuration
+  validateStatus: (status) => {
+    // Accept 2xx and 3xx status codes, and specific 4xx for auth
+    return (status >= 200 && status < 400) || status === 401 || status === 403;
+  }
 });
 
 // Request interceptor to add auth token
@@ -166,22 +172,56 @@ const apiWithFallback = {
     }
   },
 
-  // Override post method to handle authentication
+  // Override post method to handle authentication with Vercel retry logic
   async post(url: string, data?: any, config?: any) {
-    try {
-      return await api.post(url, data, config);
-    } catch (error: any) {
-      // Check if we should use mock data in production
-      const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true';
-      const isNetworkError = error.code === 'ECONNREFUSED' || error.message.includes('Network Error');
-      
-      if (import.meta.env.PROD && useMockData && isNetworkError) {
-        console.log('🔄 Backend not available, using mock authentication for:', url);
-        return this.getMockPostData(url, data);
+    const maxRetries = 3;
+    let lastError;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🚀 [VERCEL] POST attempt ${attempt}/${maxRetries} for:`, url);
+        const response = await api.post(url, data, config);
+        console.log(`✅ [VERCEL] POST successful on attempt ${attempt}`);
+        return response;
+      } catch (error: any) {
+        lastError = error;
+        console.log(`⚠️ [VERCEL] POST attempt ${attempt} failed:`, error.message);
+        
+        // If this is an auth endpoint and we get 403/401, try alternative endpoints
+        if (url.includes('/auth/login') && (error.response?.status === 403 || error.response?.status === 401)) {
+          console.log('🔄 [VERCEL] Trying alternative auth endpoints...');
+          
+          try {
+            // Try force-fresh-login endpoint
+            if (!url.includes('force-fresh-login')) {
+              const altResponse = await api.post('/api/auth/force-fresh-login', data, config);
+              console.log('✅ [VERCEL] Alternative auth successful');
+              return altResponse;
+            }
+          } catch (altError) {
+            console.log('⚠️ [VERCEL] Alternative auth also failed:', altError.message);
+          }
+        }
+        
+        // Wait before retry (exponential backoff)
+        if (attempt < maxRetries) {
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
+          console.log(`⏳ [VERCEL] Waiting ${delay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, delay));
+        }
       }
-      
-      throw error;
     }
+    
+    // Check if we should use mock data as final fallback
+    const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true';
+    const isNetworkError = lastError?.code === 'ECONNREFUSED' || lastError?.message.includes('Network Error');
+    
+    if (import.meta.env.PROD && useMockData && isNetworkError) {
+      console.log('🔄 [VERCEL] All retries failed, using mock authentication for:', url);
+      return this.getMockPostData(url, data);
+    }
+    
+    throw lastError;
   },
 
   // Override other HTTP methods for completeness
