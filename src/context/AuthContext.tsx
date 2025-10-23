@@ -73,61 +73,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (credentials: { email: string; password: string }) => {
     try {
-      console.log('🔐 Attempting fast login with:', credentials.email);
+      console.log('🔐 Attempting login with:', credentials.email);
       
-      // Extended demo users for instant login - all use password 'admin123'
-      const demoUsers = [
-        { id: 1, name: 'Admin User', email: 'admin@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
-        { id: 2, name: 'Pankil', email: 'govindamarketing9998@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
-        { id: 3, name: 'Venkat', email: 'govindamanager9998@gmail.com', role: 'EMPLOYEE' as const, password: 'admin123' },
-        { id: 4, name: 'Dinesh', email: 'dinesh@gmail.com', role: 'EMPLOYEE' as const, password: 'admin123' },
-        { id: 5, name: 'Perivi', email: 'gowthaamankrishna1998@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
-        { id: 6, name: 'Venkat Staff', email: 'gowthaamaneswar1998@gmail.com', role: 'EMPLOYEE' as const, password: 'admin123' },
-        { id: 7, name: 'Harish', email: 'newacttmis@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
-        { id: 8, name: 'Nunciya', email: 'tmsnunciya59@gmail.com', role: 'ADMIN' as const, password: 'admin123' },
-        { id: 9, name: 'Admin User', email: 'admin@businessloan.com', role: 'ADMIN' as const, password: 'admin123' },
-        // Quick test credentials
-        { id: 10, name: 'Test Admin', email: 'admin', role: 'ADMIN' as const, password: 'admin' },
-        { id: 11, name: 'Test Employee', email: 'employee', role: 'EMPLOYEE' as const, password: 'employee' },
-        { id: 12, name: 'Demo Admin', email: 'demo', role: 'ADMIN' as const, password: 'demo' }
-      ];
-
-      // Check demo users first for instant login
-      const demoUser = demoUsers.find(u => u.email === credentials.email && u.password === credentials.password);
+      // Call backend API to authenticate against staff management system
+      const response = await api.post('/api/auth/login', credentials);
+      const data = response.data;
       
-      if (demoUser) {
-        console.log('✅ Fast demo login successful:', demoUser.name);
+      if (data.access_token && data.user) {
+        console.log('✅ Login successful:', data.user.name);
         
-        const userData = {
-          id: demoUser.id,
-          name: demoUser.name,
-          email: demoUser.email,
-          role: demoUser.role
-        };
+        // Store token and user data
+        localStorage.setItem('token', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         
-        // Set demo token and user data instantly
-        localStorage.setItem('token', 'demo-token-' + demoUser.id);
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        setUser(userData);
+        setUser(data.user);
         setIsAuthenticated(true);
         
-        toast.success(`Fast login successful! Welcome ${userData.name} (${userData.role})`);
+        toast.success(`Login successful! Welcome ${data.user.name} (${data.user.role})`);
         return;
+      } else {
+        throw new Error('Invalid response from server');
       }
-      
-      // If not a demo user, show error instead of backend call for faster UX
-      console.log('❌ Credentials not found in demo users');
-      throw new Error('Invalid credentials. Use demo credentials for instant access.');
       
     } catch (error: any) {
       console.error('❌ Login error:', error);
       
-      // Show helpful error message with demo credentials
-      if (error.message.includes('Invalid credentials')) {
-        toast.error('Invalid credentials. Try: admin@gmail.com / admin123');
+      // Show helpful error message
+      if (error.response?.status === 403) {
+        toast.error('Invalid credentials. Please check your email and password.');
+      } else if (error.response?.status === 500) {
+        toast.error('Server error. Please try again later.');
+      } else if (error.message.includes('Network Error')) {
+        toast.error('Network error. Please check your connection.');
       } else {
-        toast.error(error.message || 'Login failed');
+        toast.error(error.response?.data?.message || error.message || 'Login failed');
       }
       throw error;
     }

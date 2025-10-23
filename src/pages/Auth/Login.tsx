@@ -67,16 +67,6 @@ function Login() {
     }
   };
 
-  const quickLogin = async (email: string, password: string) => {
-    setLoading(true);
-    try {
-      await login({ email, password });
-    } catch (error) {
-      console.error('❌ Quick login failed:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   // Show loading skeleton on initial load
   if (initialLoading) {
@@ -108,19 +98,19 @@ function Login() {
               transition={{ delay: 0.3, duration: 0.8 }}
             >
               <div className="mb-10 flex justify-center items-center">
-                <div className="w-24 h-24 flex items-center justify-center rounded-3xl bg-white/90 backdrop-blur-lg border-2 border-white/50 shadow-2xl hover:bg-white hover:scale-105 transition-all duration-300">
-                  <img 
-                    src="/generated-image.png" 
-                    alt="Company Logo" 
-                    className="w-20 h-20 object-contain"
-                    style={{ 
-                      filter: 'contrast(1.8) saturate(1.6) brightness(1.4)',
-                      imageRendering: 'crisp-edges',
-                      maxWidth: '100%',
-                      maxHeight: '100%'
-                    }}
-                  />
-                </div>
+                <img 
+                  src="/generated-image.png" 
+                  alt="Company Logo" 
+                  className="w-48 h-48 object-contain hover:scale-120 transition-all duration-300"
+                  style={{ 
+                    filter: 'contrast(3.0) saturate(2.5) brightness(2.5) drop-shadow(0 6px 12px rgba(0,0,0,0.15))',
+                    imageRendering: 'crisp-edges' as any,
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden' as any
+                  }}
+                />
               </div>
               <h1 className="text-4xl font-bold text-white mb-4">
                 Welcome Back!
@@ -155,19 +145,19 @@ function Login() {
           >
             <div className="text-center lg:text-left mb-8">
               <div className="lg:hidden mb-8 flex justify-center items-center">
-                <div className="w-20 h-20 flex items-center justify-center rounded-2xl bg-white backdrop-blur-md border-2 border-gray-200 shadow-xl hover:shadow-2xl hover:scale-105 transition-all duration-300">
-                  <img 
-                    src="/generated-image.png" 
-                    alt="Company Logo" 
-                    className="w-16 h-16 object-contain"
-                    style={{ 
-                      filter: 'contrast(1.8) saturate(1.6) brightness(1.4)',
-                      imageRendering: 'crisp-edges',
-                      maxWidth: '100%',
-                      maxHeight: '100%'
-                    }}
-                  />
-                </div>
+                <img 
+                  src="/generated-image.png" 
+                  alt="Company Logo" 
+                  className="w-44 h-44 object-contain hover:scale-120 transition-all duration-300"
+                  style={{ 
+                    filter: 'contrast(3.0) saturate(2.5) brightness(2.5) drop-shadow(0 6px 12px rgba(0,0,0,0.15))',
+                    imageRendering: 'crisp-edges' as any,
+                    maxWidth: '100%',
+                    maxHeight: '100%',
+                    transform: 'translateZ(0)',
+                    backfaceVisibility: 'hidden' as any
+                  }}
+                />
               </div>
               <h2 className="text-3xl font-bold text-gray-900 mb-2">
                 Login to your account
@@ -346,49 +336,6 @@ function Login() {
               </motion.button>
             </div>
 
-            {selectedRole && (
-              <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                className="space-y-3"
-              >
-                <div className="text-center text-xs text-gray-500">
-                  Demo Credentials for Fast Login:
-                </div>
-                <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-3 rounded-lg border border-blue-200">
-                  <div className="text-xs space-y-1">
-                    <div className="font-semibold text-blue-800 mb-2">Quick Access:</div>
-                    <div className="text-blue-700">
-                      <span className="font-medium">Email:</span> admin@gmail.com
-                    </div>
-                    <div className="text-blue-700">
-                      <span className="font-medium">Password:</span> admin123
-                    </div>
-                    <div className="text-blue-600 text-xs mt-2">
-                      Or try: admin/admin, employee/employee, demo/demo
-                    </div>
-                  </div>
-                  <div className="flex gap-2 mt-3">
-                    <button
-                      type="button"
-                      onClick={() => quickLogin('admin@gmail.com', 'admin123')}
-                      disabled={loading}
-                      className="flex-1 py-2 px-3 text-xs bg-green-600 text-white rounded-md hover:bg-green-700 disabled:opacity-50 transition-colors"
-                    >
-                      Quick Admin
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => quickLogin('govindamanager9998@gmail.com', 'admin123')}
-                      disabled={loading}
-                      className="flex-1 py-2 px-3 text-xs bg-blue-600 text-white rounded-md hover:bg-blue-700 disabled:opacity-50 transition-colors"
-                    >
-                      Quick Employee
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            )}
           </motion.form>
         </div>
       </motion.div>
