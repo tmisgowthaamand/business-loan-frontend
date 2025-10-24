@@ -209,13 +209,15 @@ function ModernDashboard() {
         <div className="absolute inset-0 bg-black bg-opacity-10"></div>
         <div className="relative z-10">
           <div className="flex items-center justify-between">
-            <div>
-              <h1 className="text-3xl font-bold mb-2">
-                Welcome Back, {user?.name || 'User'}!
-              </h1>
-              <p className="text-blue-100 text-lg">
-                Here's what's happening with your business today.
-              </p>
+            <div className="flex items-center space-x-6">
+              <div>
+                <h1 className="text-3xl font-bold mb-2">
+                  Global Dashboard
+                </h1>
+                <p className="text-blue-100 text-lg">
+                  Welcome back, {user?.name || 'User'}! Here's your personal performance overview.
+                </p>
+              </div>
             </div>
             <div className="flex items-center space-x-4">
               <div className="text-right">
