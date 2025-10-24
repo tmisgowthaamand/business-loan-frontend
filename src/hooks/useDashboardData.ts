@@ -199,10 +199,12 @@ export const useDashboardData = () => {
             // Map staff ID to name for better display
             const staffMapping = {
               1: 'Perivi (Admin)',
-              2: 'Venkat (Operations)', 
-              3: 'Harish (Client Mgmt)',
-              4: 'Dinesh (Processing)',
-              5: 'Nunciya (Admin)'
+              2: 'Venkat (Employee)', 
+              3: 'Harish (Admin)',
+              4: 'Pankil (Admin)',
+              5: 'Dinesh (Employee)',
+              6: 'Nunciya (Admin)',
+              7: 'Admin User (System Admin)'
             };
             staffName = staffMapping[enquiry.staffId] || `Staff ID: ${enquiry.staffId}`;
           }

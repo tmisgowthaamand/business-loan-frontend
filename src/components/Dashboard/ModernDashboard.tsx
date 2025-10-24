@@ -210,13 +210,27 @@ function ModernDashboard() {
         <div className="relative z-10">
           <div className="flex items-center justify-between">
             <div className="flex items-center space-x-6">
-              <div>
-                <h1 className="text-3xl font-bold mb-2">
-                  Global Dashboard
-                </h1>
-                <p className="text-blue-100 text-lg">
-                  Welcome back, {user?.name || 'User'}! Here's your personal performance overview.
-                </p>
+              <div className="flex items-center space-x-4">
+                <div className="bg-white bg-opacity-20 rounded-xl p-4">
+                  <h1 className="text-2xl font-bold mb-1">
+                    Global Dashboard
+                  </h1>
+                  <p className="text-blue-100 text-sm">
+                    System Overview
+                  </p>
+                </div>
+                <button 
+                  onClick={() => setShowIndividualDashboard(true)}
+                  className="bg-white bg-opacity-10 rounded-xl p-4 border border-white border-opacity-20 hover:bg-opacity-20 transition-all duration-200 cursor-pointer"
+                  title="Switch to My Personal Dashboard"
+                >
+                  <h2 className="text-xl font-semibold mb-1">
+                    My Dashboard
+                  </h2>
+                  <p className="text-blue-200 text-sm">
+                    Personal Stats
+                  </p>
+                </button>
               </div>
             </div>
             <div className="flex items-center space-x-4">
