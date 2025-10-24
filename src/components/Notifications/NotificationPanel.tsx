@@ -1,9 +1,11 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   BellIcon, 
   XMarkIcon,
-  ChevronRightIcon
+  ChevronRightIcon,
+  TrashIcon,
+  ArchiveBoxIcon
 } from '@heroicons/react/24/outline';
 import { useNavigate } from 'react-router-dom';
 import { useNotifications } from '../../context/NotificationContext';
@@ -17,6 +19,7 @@ interface Notification {
   message: string;
   createdAt: string;
   read: boolean;
+  archived?: boolean;
   data?: {
     // Client Information
     enquiryId?: number;
@@ -87,6 +90,7 @@ interface NotificationPanelProps {
 const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }) => {
   const navigate = useNavigate();
   const { notifications, unreadCount, markAsRead, markAllAsRead, refreshNotifications } = useNotifications();
+  const [activeTab, setActiveTab] = useState<'all' | 'archived'>('all');
   
   // Sample notifications for fallback
   const sampleNotifications: Notification[] = [
@@ -97,6 +101,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
       message: 'New loan application from BALAMURUGAN (BALAMURUGAN)',
       createdAt: new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString(), // 1 day ago
       read: false,
+      archived: false,
       priority: 'HIGH'
     },
     {
@@ -106,6 +111,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
       message: 'UDYAM REGISTRATION verified for priyakamaldkp',
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
       read: false,
+      archived: false,
       priority: 'MEDIUM'
     },
     {
@@ -115,7 +121,18 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
       message: 'BANK STATEMENT verified for priyakamaldkp',
       createdAt: new Date(Date.now() - 2 * 24 * 60 * 60 * 1000).toISOString(), // 2 days ago
       read: false,
+      archived: false,
       priority: 'MEDIUM'
+    },
+    {
+      id: 'sample_4',
+      type: 'PAYMENT_APPLIED', 
+      title: 'Payment Application Submitted',
+      message: 'Payment gateway application completed for RAJESH KUMAR',
+      createdAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(), // 3 days ago
+      read: true,
+      archived: true,
+      priority: 'LOW'
     }
   ];
   
@@ -124,8 +141,71 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
   console.log('🔔 NotificationPanel - notifications length:', notifications?.length);
   console.log('🔔 NotificationPanel - unreadCount:', unreadCount);
   
-  // Use real notifications if available, otherwise use sample notifications
-  const displayNotifications = notifications && notifications.length > 0 ? notifications : sampleNotifications;
+  // Filter notifications based on active tab
+  const allNotifications = notifications && notifications.length > 0 ? notifications : sampleNotifications;
+  const displayNotifications = activeTab === 'all' 
+    ? allNotifications.filter(n => !n.archived || n.archived === undefined)
+    : allNotifications.filter(n => n.archived === true);
+
+  // Delete notification function
+  const handleDeleteNotification = async (notificationId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent notification click
+    
+    try {
+      console.log(`🗑️ Deleting notification: ${notificationId}`);
+      
+      // Call delete API
+      await api.delete(`/api/notifications/${notificationId}`);
+      
+      // Refresh notifications to update the list
+      await refreshNotifications();
+      
+      toast.success('Notification deleted successfully');
+    } catch (error: any) {
+      console.error('❌ Failed to delete notification:', error);
+      toast.error('Failed to delete notification');
+    }
+  };
+
+  // Archive notification function
+  const handleArchiveNotification = async (notificationId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent notification click
+    
+    try {
+      console.log(`📦 Archiving notification: ${notificationId}`);
+      
+      // Call archive API
+      await api.patch(`/api/notifications/${notificationId}/archive`);
+      
+      // Refresh notifications to update the list
+      await refreshNotifications();
+      
+      toast.success('Notification archived successfully');
+    } catch (error: any) {
+      console.error('❌ Failed to archive notification:', error);
+      toast.error('Failed to archive notification');
+    }
+  };
+
+  // Unarchive notification function
+  const handleUnarchiveNotification = async (notificationId: string, event: React.MouseEvent) => {
+    event.stopPropagation(); // Prevent notification click
+    
+    try {
+      console.log(`📤 Unarchiving notification: ${notificationId}`);
+      
+      // Call unarchive API
+      await api.patch(`/api/notifications/${notificationId}/unarchive`);
+      
+      // Refresh notifications to update the list
+      await refreshNotifications();
+      
+      toast.success('Notification restored successfully');
+    } catch (error: any) {
+      console.error('❌ Failed to unarchive notification:', error);
+      toast.error('Failed to restore notification');
+    }
+  };
   
   console.log('🔔 NotificationPanel - displayNotifications:', displayNotifications);
   console.log('🔔 NotificationPanel - displayNotifications length:', displayNotifications?.length);
@@ -299,21 +379,44 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
 
             {/* Tabs */}
             <div className="flex border-b border-gray-100 bg-gray-50">
-              <button className="flex-1 px-4 py-3 text-sm font-medium text-gray-900 bg-white border-b-2 border-blue-500 relative">
+              <button 
+                onClick={() => setActiveTab('all')}
+                className={`flex-1 px-4 py-3 text-sm font-medium relative ${
+                  activeTab === 'all' 
+                    ? 'text-gray-900 bg-white border-b-2 border-blue-500' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
                 All
-                {unreadCount > 0 && (
+                {activeTab === 'all' && unreadCount > 0 && (
                   <span className="ml-2 bg-gray-900 text-white text-xs font-medium px-2 py-0.5 rounded-full">
                     {unreadCount}
                   </span>
                 )}
               </button>
-              <button className="flex-1 px-4 py-3 text-sm font-medium text-gray-500 hover:text-gray-700">
+              <button 
+                onClick={() => setActiveTab('archived')}
+                className={`flex-1 px-4 py-3 text-sm font-medium ${
+                  activeTab === 'archived' 
+                    ? 'text-gray-900 bg-white border-b-2 border-blue-500' 
+                    : 'text-gray-500 hover:text-gray-700'
+                }`}
+              >
+                <ArchiveBoxIcon className="h-4 w-4 inline mr-1" />
                 Archived
+                {activeTab === 'archived' && allNotifications.filter(n => n.archived === true).length > 0 && (
+                  <span className="ml-2 bg-gray-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
+                    {allNotifications.filter(n => n.archived === true).length}
+                  </span>
+                )}
               </button>
-              <button className="p-3 text-gray-400 hover:text-gray-600">
+              <button 
+                onClick={refreshNotifications}
+                className="p-3 text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                title="Refresh notifications"
+              >
                 <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
               </button>
             </div>
@@ -395,19 +498,40 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
                               </div>
                               
                               {/* Action buttons */}
-                              <div className="flex items-center space-x-2 ml-4">
-                                {notification.type === 'DOCUMENT_UPLOADED' && (
-                                  <>
-                                    <button className="text-xs text-gray-600 hover:text-gray-800 px-2 py-1 border border-gray-300 rounded hover:bg-gray-50 transition-colors">
-                                      View
-                                    </button>
-                                    <button className="text-xs text-blue-600 hover:text-blue-800 px-2 py-1 border border-blue-300 rounded hover:bg-blue-50 transition-colors">
-                                      Download
-                                    </button>
-                                  </>
+                              <div className="flex items-center space-x-1 ml-4">
+                                {/* Archive/Unarchive button */}
+                                {activeTab === 'all' ? (
+                                  <button
+                                    onClick={(e) => handleArchiveNotification(notification.id, e)}
+                                    className="p-1 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded transition-colors"
+                                    title="Archive notification"
+                                  >
+                                    <ArchiveBoxIcon className="h-4 w-4" />
+                                  </button>
+                                ) : (
+                                  <button
+                                    onClick={(e) => handleUnarchiveNotification(notification.id, e)}
+                                    className="p-1 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded transition-colors"
+                                    title="Restore notification"
+                                  >
+                                    <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 10h10a8 8 0 018 8v2M3 10l6 6m-6-6l6-6" />
+                                    </svg>
+                                  </button>
                                 )}
+                                
+                                {/* Delete button */}
+                                <button
+                                  onClick={(e) => handleDeleteNotification(notification.id, e)}
+                                  className="p-1 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
+                                  title="Delete notification"
+                                >
+                                  <TrashIcon className="h-4 w-4" />
+                                </button>
+                                
+                                {/* Unread indicator */}
                                 {!notification.read && (
-                                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full ml-2"></div>
                                 )}
                               </div>
                             </div>
