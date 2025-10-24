@@ -39,7 +39,7 @@ if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
   console.log('👤 Employee: dinesh@gmail.com / 12345678 (Dinesh)');
   console.log('👑 Admin: tmsnunciya59@gmail.com / 12345678 (Nunciya)');
   console.log('👑 Admin: admin@businessloan.com / 12345678 (Admin User)');
-  console.log('👑 Admin: admin@gmail.com / 12345678 (Admin User)');
+  console.log('👑 Admin: admin@gmail.com / admin123 (Default Admin)');
 }
 
 // Create axios instance with Vercel-optimized configuration

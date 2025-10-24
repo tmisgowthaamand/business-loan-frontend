@@ -1045,7 +1045,7 @@ export class MockDataService {
         id: 7,
         name: 'Admin User',
         email: 'admin@gmail.com',
-        password: '12345678', // From screenshot
+        password: 'admin123', // Default admin password
         role: 'ADMIN',
         department: 'Administration',
         verified: true,

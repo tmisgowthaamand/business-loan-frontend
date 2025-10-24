@@ -11,10 +11,12 @@ import {
   UserGroupIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
+import { useStaffPermissions } from '../../hooks/useStaffPermissions';
 
 function Sidebar() {
   const { user, logout } = useAuth();
   const { t } = useTranslation();
+  const { canManageStaff, isSuperAdmin } = useStaffPermissions();
   const isAdmin = user?.role === 'ADMIN';
 
   const navItems = [
@@ -23,7 +25,7 @@ function Sidebar() {
     { name: t('sidebar.docVerification'), href: '/documents', icon: FolderIcon, show: true },
     { name: t('sidebar.shortlist'), href: '/shortlist', icon: ListBulletIcon, show: true },
     { name: t('sidebar.paymentGateway'), href: '/payment-gateway', icon: CreditCardIcon, show: true },
-    { name: t('sidebar.staffManagement'), href: '/staff', icon: UserGroupIcon, show: isAdmin },
+    { name: t('sidebar.staffManagement'), href: '/staff', icon: UserGroupIcon, show: canManageStaff },
     { name: t('sidebar.transactions'), href: '/transactions', icon: BanknotesIcon, show: isAdmin },
   ];
 

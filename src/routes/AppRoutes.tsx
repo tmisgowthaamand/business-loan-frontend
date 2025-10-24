@@ -1,5 +1,6 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useStaffPermissions } from '../hooks/useStaffPermissions';
 import Layout from '../components/Layout/Layout';
 import Login from '../pages/Auth/Login';
 import Dashboard from '../pages/Dashboard/Dashboard';
@@ -19,6 +20,7 @@ import RefreshTestPage from '../pages/Testing/RefreshTestPage';
 import LoginTest from '../pages/Testing/LoginTest';
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
+  const { canManageStaff } = useStaffPermissions();
 
   // Removed loading spinner - loading screens only on login page
 
@@ -50,10 +52,14 @@ function AppRoutes() {
               <Route path="/payment-gateway" element={<CashfreeList />} />
               <Route path="/payment-gateway/apply/:id" element={<CashfreeApplicationForm />} />
               
+              {/* Staff management route - only for admin@gmail.com */}
+              {canManageStaff && (
+                <Route path="/staff" element={<StaffManagement />} />
+              )}
+              
               {/* Admin-only routes */}
               {user?.role === 'ADMIN' && (
                 <>
-                  <Route path="/staff" element={<StaffManagement />} />
                   <Route path="/transactions" element={<TransactionList />} />
                   <Route path="/transactions/new" element={<TransactionForm />} />
                   <Route path="/transactions/:id/edit" element={<TransactionForm />} />
