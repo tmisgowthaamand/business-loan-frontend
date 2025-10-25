@@ -5,86 +5,83 @@ import MockDataService from '../services/mockData.service';
 const getBackendURL = () => {
   // Check for environment variable first (allows override)
   if (import.meta.env.VITE_BACKEND_URL) {
+    console.log('🔗 Using environment variable backend URL:', import.meta.env.VITE_BACKEND_URL);
     return import.meta.env.VITE_BACKEND_URL;
   }
   
-  // Check if we're in production (Vercel deployment)
+  // Check if we're in production (Vercel/Netlify deployment)
   if (import.meta.env.PROD) {
-    // Try multiple backend URLs for production
-    const productionBackends = [
-      'https://business-loan-backend.onrender.com',
-      'https://business-loan-api.onrender.com',
-      'https://loan-backend-api.onrender.com'
-    ];
-    
-    // For now, use the first one - we'll add health check logic later
-    return productionBackends[0];
+    // Primary Render backend URL for production
+    const renderBackendURL = 'https://business-loan-backend.onrender.com';
+    console.log('🔗 Production mode - using Render backend:', renderBackendURL);
+    return renderBackendURL;
   }
   
   // Default to localhost for development
-  return 'http://localhost:5002';
+  const localURL = 'http://localhost:5002';
+  console.log('🔗 Development mode - using localhost:', localURL);
+  return localURL;
 };
 
 const BACKEND_URL = getBackendURL();
 
-console.log('🔗 Backend URL configured:', BACKEND_URL);
-console.log('📊 Updated deployment with all localhost data - v1.0.1');
+console.log('🔗 [RENDER] Backend URL configured:', BACKEND_URL);
+console.log('📊 [RENDER] Dashboard system ready for deployment - v2.0.0');
+console.log('🚀 [RENDER] Environment:', {
+  isProd: import.meta.env.PROD,
+  mode: import.meta.env.MODE,
+  backendURL: BACKEND_URL,
+  timestamp: new Date().toISOString()
+});
 
-// Show login credentials in production when using mock data
-if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-  console.log('🔐 PRODUCTION LOGIN CREDENTIALS (REAL STAFF MEMBERS):');
-  console.log('👑 Admin: gowthaamankrishna1998@gmail.com / 12345678 (Perivi)');
-  console.log('👤 Employee: gowthaamaneswar1998@gmail.com / 12345678 (Venkat)');
-  console.log('👑 Admin: newacttmis@gmail.com / 12345678 (Harish)');
-  console.log('👤 Employee: dinesh@gmail.com / 12345678 (Dinesh)');
-  console.log('👑 Admin: tmsnunciya59@gmail.com / 12345678 (Nunciya)');
-  console.log('👑 Admin: admin@businessloan.com / 12345678 (Admin User)');
-  console.log('👑 Admin: admin@gmail.com / admin123 (Default Admin)');
-}
+// Credentials removed for security - contact admin for login details
 
-// Create axios instance with Vercel-optimized configuration
+// Create axios instance with Render-optimized configuration
 const api = axios.create({
   baseURL: BACKEND_URL,
-  timeout: 60000, // Increased timeout to 60 seconds for Vercel cold starts
+  timeout: 90000, // Increased timeout to 90 seconds for Render cold starts
   headers: {
     'Content-Type': 'application/json',
-    'Cache-Control': 'no-cache', // Prevent caching issues on Vercel
+    'Cache-Control': 'no-cache', // Prevent caching issues
+    'Accept': 'application/json',
+    'X-Requested-With': 'XMLHttpRequest'
   },
   withCredentials: false,
-  // Vercel-specific retry configuration
+  // Render-specific retry configuration
   validateStatus: (status) => {
     // Accept 2xx and 3xx status codes, and specific 4xx for auth
     return (status >= 200 && status < 400) || status === 401 || status === 403;
   }
 });
 
-// Request interceptor to add auth token
+// Request interceptor to add auth token and enhanced logging
 api.interceptors.request.use(
   (config) => {
-    console.log('🔄 API Request:', {
+    const fullURL = `${config.baseURL || window.location.origin}${config.url}`;
+    console.log('🔄 [RENDER] API Request:', {
       method: config.method?.toUpperCase(),
       url: config.url,
       baseURL: config.baseURL,
-      fullURL: `${config.baseURL || window.location.origin}${config.url}`,
-      headers: config.headers,
-      data: config.data
+      fullURL: fullURL,
+      timestamp: new Date().toISOString()
     });
     
-    // Skip auth token for demo/supabase endpoints to avoid auth issues
+    // Enhanced auth token handling for Render deployment
     const isSupabaseEndpoint = config.url?.includes('/api/supabase/');
     const isMockEndpoint = config.url?.includes('/api/mock/');
     const isHealthEndpoint = config.url?.includes('/health');
+    const isDashboardEndpoint = config.url?.includes('/api/dashboard');
     
-    if (!isSupabaseEndpoint && !isMockEndpoint && !isHealthEndpoint) {
+    if (!isSupabaseEndpoint && !isMockEndpoint && !isHealthEndpoint && !isDashboardEndpoint) {
       const token = localStorage.getItem('token');
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
-        console.log('🔑 Added auth token to request');
+        console.log('🔑 [RENDER] Added auth token to request');
       } else {
-        console.log('ℹ️ No auth token found in localStorage');
+        console.log('ℹ️ [RENDER] No auth token found - using demo mode');
       }
     } else {
-      console.log('ℹ️ Skipping auth token for demo endpoint:', config.url);
+      console.log('ℹ️ [RENDER] Skipping auth token for endpoint:', config.url);
     }
     return config;
   },
@@ -94,28 +91,31 @@ api.interceptors.request.use(
   }
 );
 
-// Response interceptor to handle errors
+// Response interceptor to handle errors with enhanced Render logging
 api.interceptors.response.use(
   (response) => {
-    console.log('✅ API Response:', {
+    console.log('✅ [RENDER] API Response:', {
       status: response.status,
       statusText: response.statusText,
       url: response.config.url,
       method: response.config.method?.toUpperCase(),
-      data: response.data
+      dataLength: Array.isArray(response.data) ? response.data.length : typeof response.data,
+      timestamp: new Date().toISOString()
     });
     return response;
   },
   (error) => {
-    console.error('❌ API Error Details:', {
+    console.error('❌ [RENDER] API Error Details:', {
       message: error.message,
       code: error.code,
       status: error.response?.status,
       statusText: error.response?.statusText,
       url: error.config?.url,
       method: error.config?.method?.toUpperCase(),
+      baseURL: error.config?.baseURL,
+      fullURL: `${error.config?.baseURL || ''}${error.config?.url || ''}`,
       responseData: error.response?.data,
-      requestData: error.config?.data
+      timestamp: new Date().toISOString()
     });
     
     if (error.response?.status === 401) {
@@ -133,16 +133,28 @@ api.interceptors.response.use(
       }
     }
     
-    // Handle network errors
-    if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error')) {
-      console.error('🚫 Network Error: Backend server is not running or not accessible');
-      console.error('🔍 Backend URL:', BACKEND_URL);
-      console.error('🔍 Environment:', import.meta.env.PROD ? 'Production' : 'Development');
+    // Enhanced network error handling for Render deployment
+    if (error.code === 'ECONNREFUSED' || error.message.includes('Network Error') || error.code === 'ERR_NETWORK') {
+      console.error('🚫 [RENDER] Network Error: Backend server connection failed');
+      console.error('🔍 [RENDER] Backend URL:', BACKEND_URL);
+      console.error('🔍 [RENDER] Environment:', import.meta.env.PROD ? 'Production' : 'Development');
+      console.error('🔍 [RENDER] Error details:', {
+        code: error.code,
+        message: error.message,
+        config: {
+          url: error.config?.url,
+          method: error.config?.method,
+          timeout: error.config?.timeout
+        }
+      });
       
-      // In production, show user-friendly error
+      // In production, provide specific Render deployment guidance
       if (import.meta.env.PROD) {
-        console.error('🚨 Production backend is not accessible. Please check deployment status.');
-        // You could show a toast notification here
+        console.error('🚨 [RENDER] Production backend connection failed.');
+        console.error('🔧 [RENDER] Possible causes:');
+        console.error('   - Render service is cold starting (wait 30-60 seconds)');
+        console.error('   - Backend deployment failed');
+        console.error('   - Network connectivity issues');
       }
     }
     
@@ -154,17 +166,22 @@ api.interceptors.response.use(
 const apiWithFallback = {
   ...api,
   
-  // Override get method to provide mock data fallback
+  // Override get method with enhanced Render error handling
   async get(url: string, config?: any) {
     try {
-      return await api.get(url, config);
+      console.log('🔄 [RENDER] GET request to:', url);
+      const response = await api.get(url, config);
+      console.log('✅ [RENDER] GET success for:', url, '- Data length:', Array.isArray(response.data) ? response.data.length : typeof response.data);
+      return response;
     } catch (error: any) {
+      console.error('❌ [RENDER] GET failed for:', url, '- Error:', error.message);
+      
       // Check if we should use mock data in production
       const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true';
-      const isNetworkError = error.code === 'ECONNREFUSED' || error.message.includes('Network Error');
+      const isNetworkError = error.code === 'ECONNREFUSED' || error.message.includes('Network Error') || error.code === 'ERR_NETWORK';
       
       if (import.meta.env.PROD && useMockData && isNetworkError) {
-        console.log('🔄 Backend not available, using mock data for:', url);
+        console.log('🔄 [RENDER] Backend not available, using mock data for:', url);
         return this.getMockData(url);
       }
       
@@ -172,52 +189,52 @@ const apiWithFallback = {
     }
   },
 
-  // Override post method to handle authentication with Vercel retry logic
+  // Override post method with enhanced Render retry logic
   async post(url: string, data?: any, config?: any) {
     const maxRetries = 3;
     let lastError;
     
     for (let attempt = 1; attempt <= maxRetries; attempt++) {
       try {
-        console.log(`🚀 [VERCEL] POST attempt ${attempt}/${maxRetries} for:`, url);
+        console.log(`🚀 [RENDER] POST attempt ${attempt}/${maxRetries} for:`, url);
         const response = await api.post(url, data, config);
-        console.log(`✅ [VERCEL] POST successful on attempt ${attempt}`);
+        console.log(`✅ [RENDER] POST successful on attempt ${attempt}`);
         return response;
       } catch (error: any) {
         lastError = error;
-        console.log(`⚠️ [VERCEL] POST attempt ${attempt} failed:`, error.message);
+        console.log(`⚠️ [RENDER] POST attempt ${attempt} failed:`, error.message);
         
-        // If this is an auth endpoint and we get 403/401, try alternative endpoints
+        // Enhanced auth endpoint handling for Render
         if (url.includes('/auth/login') && (error.response?.status === 403 || error.response?.status === 401)) {
-          console.log('🔄 [VERCEL] Trying alternative auth endpoints...');
+          console.log('🔄 [RENDER] Trying alternative auth endpoints...');
           
           try {
             // Try force-fresh-login endpoint
             if (!url.includes('force-fresh-login')) {
               const altResponse = await api.post('/api/auth/force-fresh-login', data, config);
-              console.log('✅ [VERCEL] Alternative auth successful');
+              console.log('✅ [RENDER] Alternative auth successful');
               return altResponse;
             }
           } catch (altError) {
-            console.log('⚠️ [VERCEL] Alternative auth also failed:', altError.message);
+            console.log('⚠️ [RENDER] Alternative auth also failed:', altError.message);
           }
         }
         
-        // Wait before retry (exponential backoff)
+        // Wait before retry (exponential backoff optimized for Render)
         if (attempt < maxRetries) {
-          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 5000);
-          console.log(`⏳ [VERCEL] Waiting ${delay}ms before retry...`);
+          const delay = Math.min(1000 * Math.pow(2, attempt - 1), 8000);
+          console.log(`⏳ [RENDER] Waiting ${delay}ms before retry...`);
           await new Promise(resolve => setTimeout(resolve, delay));
         }
       }
     }
     
-    // Check if we should use mock data as final fallback
+    // Check if we should use mock data as final fallback for Render
     const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true';
-    const isNetworkError = lastError?.code === 'ECONNREFUSED' || lastError?.message.includes('Network Error');
+    const isNetworkError = lastError?.code === 'ECONNREFUSED' || lastError?.message.includes('Network Error') || lastError?.code === 'ERR_NETWORK';
     
     if (import.meta.env.PROD && useMockData && isNetworkError) {
-      console.log('🔄 [VERCEL] All retries failed, using mock authentication for:', url);
+      console.log('🔄 [RENDER] All retries failed, using mock authentication for:', url);
       return this.getMockPostData(url, data);
     }
     
@@ -230,10 +247,10 @@ const apiWithFallback = {
       return await api.put(url, data, config);
     } catch (error: any) {
       const useMockData = import.meta.env.VITE_USE_MOCK_DATA === 'true';
-      const isNetworkError = error.code === 'ECONNREFUSED' || error.message.includes('Network Error');
+      const isNetworkError = error.code === 'ECONNREFUSED' || error.message.includes('Network Error') || error.code === 'ERR_NETWORK';
       
       if (import.meta.env.PROD && useMockData && isNetworkError) {
-        console.log('🔄 Backend not available, using mock response for PUT:', url);
+        console.log('🔄 [RENDER] Backend not available, using mock response for PUT:', url);
         return { status: 200, statusText: 'OK', config: { url }, data: { message: 'Updated successfully', ...data } };
       }
       

@@ -40,19 +40,42 @@ const DocumentVerification: React.FC = () => {
   const navigate = useNavigate();
   const [assignedStaff, setAssignedStaff] = useState<{ [key: number]: string }>({});
 
+  // Fetch all enquiries to ensure we have the latest data
+  const { data: enquiries, isLoading: enquiriesLoading } = useQuery(
+    'enquiries',
+    async () => {
+      console.log('📋 DocumentVerification: Fetching enquiries...');
+      const response = await api.get('/api/enquiries');
+      console.log('📋 DocumentVerification: Enquiries fetched:', response.data?.length || 0);
+      return response.data;
+    },
+    {
+      staleTime: 2 * 60 * 1000, // 2 minutes - refresh frequently to catch new enquiries
+      keepPreviousData: true,
+      refetchOnMount: true, // Always refetch when component mounts
+      refetchOnWindowFocus: true, // Refetch when user returns to tab
+    }
+  );
+
   // Fetch all documents that need verification
-  const { data: documents, isLoading } = useQuery(
+  const { data: documents, isLoading: documentsLoading } = useQuery(
     'documents-verification',
     async () => {
+      console.log('📄 DocumentVerification: Fetching documents...');
       const response = await api.get('/api/documents');
+      console.log('📄 DocumentVerification: Documents fetched:', response.data?.length || 0);
       return response.data;
     },
     {
       // Use global settings - documents need to persist well
       staleTime: 3 * 60 * 1000, // 3 minutes
       keepPreviousData: true, // Prevent blank pages during refresh
+      refetchOnMount: true, // Always refetch when component mounts
+      refetchOnWindowFocus: true, // Refetch when user returns to tab
     }
   );
+
+  const isLoading = enquiriesLoading || documentsLoading;
 
   // Fetch staff members for assignment
   const { data: staffMembers } = useQuery(
@@ -80,7 +103,13 @@ const DocumentVerification: React.FC = () => {
     {
       onSuccess: async (response) => {
         toast.success('Document verification updated successfully!');
+        
+        // Invalidate all related queries to refresh data
         queryClient.invalidateQueries('documents-verification');
+        queryClient.invalidateQueries('enquiries');
+        queryClient.invalidateQueries(['shortlists']);
+        
+        console.log('📄 Document verification updated, refreshing all related data...');
         
         // Check if all documents for this enquiry are now verified
         if (response.enquiryId) {
@@ -109,7 +138,10 @@ const DocumentVerification: React.FC = () => {
               try {
                 await api.post('/api/shortlist', { enquiryId: response.enquiryId });
                 toast.success(`🎉 All documents verified! ${enquiryGroup.enquiry.name} automatically added to shortlist!`);
+                
+                // Refresh all queries after shortlist addition
                 queryClient.invalidateQueries('documents-verification');
+                queryClient.invalidateQueries('enquiries');
                 queryClient.invalidateQueries(['shortlists']);
               } catch (error) {
                 console.error('Failed to auto-add to shortlist:', error);
@@ -141,9 +173,13 @@ const DocumentVerification: React.FC = () => {
       onSuccess: (response) => {
         const clientName = response.data?.name || 'Client';
         toast.success(`${clientName} added to shortlist successfully!`);
-        // Invalidate shortlist cache before navigating
+        
+        // Invalidate all related queries to refresh data everywhere
         queryClient.invalidateQueries(['shortlists']);
         queryClient.invalidateQueries('documents-verification');
+        queryClient.invalidateQueries('enquiries');
+        
+        console.log('📋 Client added to shortlist, refreshing all related data...');
         
         // Navigate to shortlist page after a short delay
         setTimeout(() => {
@@ -285,9 +321,34 @@ const DocumentVerification: React.FC = () => {
   return (
     <div className="space-y-6">
       <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold text-gray-900">Document Verification</h1>
-        <div className="text-sm text-gray-500">
-          {documents?.length || 0} documents to review
+        <div>
+          <h1 className="text-2xl font-bold text-gray-900">Document Verification</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            {enquiries?.length || 0} enquiries • {documents?.length || 0} documents to review
+          </p>
+        </div>
+        <div className="flex items-center space-x-3">
+          <button
+            onClick={() => {
+              console.log('🔄 Manual refresh triggered from header...');
+              queryClient.invalidateQueries('enquiries');
+              queryClient.invalidateQueries('documents-verification');
+              toast.success('Refreshing data...');
+            }}
+            disabled={isLoading}
+            className="inline-flex items-center px-3 py-2 border border-gray-300 shadow-sm text-sm leading-4 font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:opacity-50"
+          >
+            {isLoading ? (
+              <>
+                <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-gray-600 mr-2"></div>
+                Loading...
+              </>
+            ) : (
+              <>
+                🔄 Refresh
+              </>
+            )}
+          </button>
         </div>
       </div>
 
@@ -560,8 +621,32 @@ const DocumentVerification: React.FC = () => {
           <DocumentCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">No documents to verify</h3>
           <p className="mt-1 text-sm text-gray-500">
-            All documents have been processed or no documents have been uploaded yet.
+            {enquiries && enquiries.length > 0 
+              ? "All documents have been processed or no documents have been uploaded yet."
+              : "No enquiries found. Create an enquiry first to upload documents for verification."
+            }
           </p>
+          <div className="mt-4 space-x-3">
+            <button
+              onClick={() => {
+                console.log('🔄 Refreshing document verification data...');
+                queryClient.invalidateQueries('enquiries');
+                queryClient.invalidateQueries('documents-verification');
+                toast.success('Refreshing data...');
+              }}
+              className="inline-flex items-center px-4 py-2 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+            >
+              🔄 Refresh Data
+            </button>
+            {(!enquiries || enquiries.length === 0) && (
+              <button
+                onClick={() => navigate('/apply')}
+                className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+              >
+                📝 Create New Enquiry
+              </button>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -41,7 +41,8 @@ export const useIndividualDashboard = () => {
   const { data, isLoading: loading, error, refetch } = useQuery(
     ['individual-dashboard', user?.id, user?.email], // Include email for better caching
     async (): Promise<IndividualDashboardData> => {
-      console.log('🚀 [VERCEL] Fetching individual dashboard for staff:', user?.name, '(', user?.email, ')');
+      console.log('🚀 [RENDER] Fetching individual dashboard for staff:', user?.name, '(', user?.email, ')');
+      console.log('🚀 [RENDER] User role:', user?.role, 'ID:', user?.id);
       
       if (!user) {
         throw new Error('User not authenticated');
@@ -50,105 +51,167 @@ export const useIndividualDashboard = () => {
       // Fetch enquiries assigned to this user with enhanced filtering
       let myEnquiries = [];
       try {
+        console.log('🚀 [RENDER] Fetching enquiries for staff assignment filtering...');
         const enquiriesResponse = await api.get('/api/enquiries');
         const allEnquiries = enquiriesResponse.data || [];
+        console.log('🚀 [RENDER] Total enquiries fetched:', allEnquiries.length);
         
-        // Enhanced filtering for staff assignments
+        // Enhanced filtering for staff assignments with better logging
         myEnquiries = allEnquiries.filter((e: any) => {
           // Check multiple assignment fields
           const isAssignedByStaffId = e.staffId === user.id;
           const isAssignedByName = e.assignedStaff === user.name || e.staff?.name === user.name;
           const isAssignedByEmail = e.staff?.email === user.email;
           
-          // For admin@gmail.com, show all enquiries
-          if (user.email === 'admin@gmail.com') {
+          // For admin users, show all enquiries
+          if (user.role === 'ADMIN' || user.email === 'admin@gmail.com' || user.email === 'admin@businessloan.com') {
             return true;
           }
           
-          return isAssignedByStaffId || isAssignedByName || isAssignedByEmail;
+          // For specific admin emails, show all
+          const adminEmails = [
+            'gowthaamankrishna1998@gmail.com', // Perivi
+            'newacttmis@gmail.com', // Harish
+            'tmsnunciya59@gmail.com' // Nunciya
+          ];
+          if (adminEmails.includes(user.email)) {
+            return true;
+          }
+          
+          const isAssigned = isAssignedByStaffId || isAssignedByName || isAssignedByEmail;
+          if (isAssigned) {
+            console.log('🚀 [RENDER] Enquiry assigned to', user.name, ':', e.name);
+          }
+          
+          return isAssigned;
         });
         
-        console.log('🚀 [VERCEL] Staff', user.name, 'enquiries:', myEnquiries.length);
-      } catch (error) {
-        console.log('❌ [VERCEL] Enquiries fetch error:', error);
+        console.log('🚀 [RENDER] Staff', user.name, 'assigned enquiries:', myEnquiries.length);
+        if (myEnquiries.length > 0) {
+          console.log('🚀 [RENDER] Sample assigned enquiry:', myEnquiries[0]);
+        }
+      } catch (error: any) {
+        console.error('❌ [RENDER] Enquiries fetch error:', error.message);
         myEnquiries = [];
       }
 
       // Fetch documents processed by this user
       let myDocuments = [];
       try {
+        console.log('🚀 [RENDER] Fetching documents for staff processing...');
         const documentsResponse = await api.get('/api/documents');
         const allDocuments = documentsResponse.data || [];
+        console.log('🚀 [RENDER] Total documents fetched:', allDocuments.length);
         
-        // Filter documents by staff assignment
+        // Filter documents by staff assignment with enhanced logic
         myDocuments = allDocuments.filter((d: any) => {
           const isMyDocument = d.verifiedBy === user.name || 
                               d.uploadedBy?.name === user.name ||
                               d.staffId === user.id;
           
-          // For admin@gmail.com, show all documents
-          if (user.email === 'admin@gmail.com') {
+          // For admin users, show all documents
+          if (user.role === 'ADMIN' || user.email === 'admin@gmail.com' || user.email === 'admin@businessloan.com') {
+            return true;
+          }
+          
+          // For specific admin emails, show all
+          const adminEmails = [
+            'gowthaamankrishna1998@gmail.com', // Perivi
+            'newacttmis@gmail.com', // Harish
+            'tmsnunciya59@gmail.com' // Nunciya
+          ];
+          if (adminEmails.includes(user.email)) {
             return true;
           }
           
           return isMyDocument;
         });
         
-        console.log('🚀 [VERCEL] Staff', user.name, 'documents:', myDocuments.length);
-      } catch (error) {
-        console.log('❌ [VERCEL] Documents fetch error:', error);
+        console.log('🚀 [RENDER] Staff', user.name, 'processed documents:', myDocuments.length);
+      } catch (error: any) {
+        console.error('❌ [RENDER] Documents fetch error:', error.message);
         myDocuments = [];
       }
 
       // Fetch shortlists created by this user
       let myShortlists = [];
       try {
+        console.log('🚀 [RENDER] Fetching shortlists for staff management...');
         const shortlistResponse = await api.get('/api/shortlist');
         const allShortlists = shortlistResponse.data || [];
+        console.log('🚀 [RENDER] Total shortlists fetched:', allShortlists.length);
         
-        // Filter shortlists by staff assignment
+        // Filter shortlists by staff assignment with enhanced logic
         myShortlists = allShortlists.filter((s: any) => {
           const isMyShortlist = s.createdBy === user.name || 
                                s.staffId === user.id ||
                                s.staff === user.name;
           
-          // For admin@gmail.com, show all shortlists
-          if (user.email === 'admin@gmail.com') {
+          // For admin users, show all shortlists
+          if (user.role === 'ADMIN' || user.email === 'admin@gmail.com' || user.email === 'admin@businessloan.com') {
+            return true;
+          }
+          
+          // For specific admin emails, show all
+          const adminEmails = [
+            'gowthaamankrishna1998@gmail.com', // Perivi
+            'newacttmis@gmail.com', // Harish
+            'tmsnunciya59@gmail.com' // Nunciya
+          ];
+          if (adminEmails.includes(user.email)) {
             return true;
           }
           
           return isMyShortlist;
         });
         
-        console.log('🚀 [VERCEL] Staff', user.name, 'shortlists:', myShortlists.length);
-      } catch (error) {
-        console.log('❌ [VERCEL] Shortlists fetch error:', error);
+        console.log('🚀 [RENDER] Staff', user.name, 'managed shortlists:', myShortlists.length);
+      } catch (error: any) {
+        console.error('❌ [RENDER] Shortlists fetch error:', error.message);
         myShortlists = [];
       }
 
       // Fetch payment applications handled by this user
       let myPayments = [];
       try {
-        const paymentResponse = await api.get('/api/cashfree/applications');
+        console.log('🚀 [RENDER] Fetching payment applications for staff processing...');
+        let paymentResponse;
+        try {
+          paymentResponse = await api.get('/api/cashfree/applications');
+        } catch (firstError) {
+          console.log('🚀 [RENDER] Trying alternative payment endpoint...');
+          paymentResponse = await api.get('/api/cashfree');
+        }
         const allPayments = paymentResponse.data || [];
+        console.log('🚀 [RENDER] Total payment applications fetched:', allPayments.length);
         
-        // Filter payments by staff assignment
+        // Filter payments by staff assignment with enhanced logic
         myPayments = allPayments.filter((p: any) => {
           const isMyPayment = p.submittedBy?.name === user.name ||
                              p.submittedBy?.email === user.email ||
                              p.staffId === user.id;
           
-          // For admin@gmail.com, show all payments
-          if (user.email === 'admin@gmail.com') {
+          // For admin users, show all payments
+          if (user.role === 'ADMIN' || user.email === 'admin@gmail.com' || user.email === 'admin@businessloan.com') {
+            return true;
+          }
+          
+          // For specific admin emails, show all
+          const adminEmails = [
+            'gowthaamankrishna1998@gmail.com', // Perivi
+            'newacttmis@gmail.com', // Harish
+            'tmsnunciya59@gmail.com' // Nunciya
+          ];
+          if (adminEmails.includes(user.email)) {
             return true;
           }
           
           return isMyPayment;
         });
         
-        console.log('🚀 [VERCEL] Staff', user.name, 'payments:', myPayments.length);
-      } catch (error) {
-        console.log('❌ [VERCEL] Payments fetch error:', error);
+        console.log('🚀 [RENDER] Staff', user.name, 'handled payments:', myPayments.length);
+      } catch (error: any) {
+        console.error('❌ [RENDER] Payments fetch error:', error.message);
         myPayments = [];
       }
 
@@ -172,18 +235,30 @@ export const useIndividualDashboard = () => {
         new Date(e.createdAt) >= thisMonthStart
       ).length;
 
+      // Calculate comprehensive individual dashboard statistics
+      const verifiedDocuments = myDocuments.filter((d: any) => d.verified).length;
+      const unverifiedDocuments = myDocuments.filter((d: any) => !d.verified).length;
+      const completedPayments = myPayments.filter((p: any) => 
+        p.status === 'COMPLETED' || p.status === 'TRANSACTION_DONE'
+      ).length;
+      const pendingPayments = myPayments.filter((p: any) => 
+        p.status === 'PENDING' || p.status === 'PROCESSING'
+      ).length;
+      
       const stats: IndividualDashboardStats = {
         myEnquiries: myEnquiries.length,
-        myDocumentsProcessed: myDocuments.filter((d: any) => d.verified).length,
+        myDocumentsProcessed: verifiedDocuments,
         myShortlisted: myShortlists.length,
         myPaymentApplications: myPayments.length,
-        myCompletedTasks: myDocuments.filter((d: any) => d.verified).length + myShortlists.length + myPayments.filter((p: any) => p.status === 'COMPLETED').length,
-        myPendingTasks: myDocuments.filter((d: any) => !d.verified).length + myPayments.filter((p: any) => p.status === 'PENDING').length,
+        myCompletedTasks: verifiedDocuments + myShortlists.length + completedPayments,
+        myPendingTasks: unverifiedDocuments + pendingPayments,
         totalClientsHandled: myEnquiries.length,
-        successRate: myEnquiries.length > 0 ? Math.round((myPayments.filter((p: any) => p.status === 'COMPLETED').length / myEnquiries.length) * 100) : 0,
+        successRate: myEnquiries.length > 0 ? Math.round((completedPayments / myEnquiries.length) * 100) : 0,
         thisMonthEnquiries,
         thisWeekEnquiries
       };
+      
+      console.log('🚀 [RENDER] Individual dashboard stats for', user.name, ':', stats);
 
       // Generate recent activities for individual staff member
       const recentActivities: MyRecentActivity[] = [
@@ -250,31 +325,48 @@ export const useIndividualDashboard = () => {
     },
     {
       enabled: !!user, // Only run when user is available
-      // Vercel-optimized settings for individual dashboard
-      staleTime: 30 * 1000, // 30 seconds for Vercel performance
-      cacheTime: 10 * 60 * 1000, // 10 minutes cache for persistence
-      refetchInterval: 30 * 1000, // Auto-refresh every 30 seconds for Vercel
+      // Render-optimized settings for individual dashboard
+      staleTime: 2 * 60 * 1000, // 2 minutes for Render performance
+      cacheTime: 15 * 60 * 1000, // 15 minutes cache for persistence
+      refetchInterval: 90 * 1000, // Auto-refresh every 90 seconds for Render (less frequent than global)
       refetchOnWindowFocus: true,
       refetchOnMount: true,
-      refetchIntervalInBackground: false, // Disable for Vercel performance
+      refetchIntervalInBackground: false, // Disable for Render performance
       
-      // Retry configuration for Vercel
-      retry: 2,
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+      // Enhanced retry configuration for Render
+      retry: (failureCount, error: any) => {
+        // Don't retry on 4xx errors (client errors)
+        if (error?.response?.status >= 400 && error?.response?.status < 500) {
+          return false;
+        }
+        // Retry up to 2 times for network errors and 5xx errors
+        return failureCount < 2;
+      },
+      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 8000),
       
       onSuccess: (data) => {
-        console.log('🚀 [VERCEL] Individual dashboard updated for', user?.name, ':', {
+        console.log('🚀 [RENDER] Individual dashboard updated successfully for', user?.name, ':', {
           myEnquiries: data.stats.myEnquiries,
+          documentsProcessed: data.stats.myDocumentsProcessed,
           myShortlisted: data.stats.myShortlisted,
           myPayments: data.stats.myPaymentApplications,
+          completedTasks: data.stats.myCompletedTasks,
+          pendingTasks: data.stats.myPendingTasks,
           successRate: data.stats.successRate,
           totalClients: data.stats.totalClientsHandled,
-          isAdmin: user?.email === 'admin@gmail.com',
-          timestamp: new Date().toLocaleTimeString()
+          role: user?.role,
+          isAdmin: user?.role === 'ADMIN',
+          timestamp: new Date().toLocaleTimeString(),
+          environment: 'RENDER'
         });
       },
-      onError: (error) => {
-        console.error('❌ [VERCEL] Individual dashboard fetch error for', user?.name, ':', error);
+      onError: (error: any) => {
+        console.error('❌ [RENDER] Individual dashboard fetch error for', user?.name, ':', {
+          message: error.message,
+          status: error.response?.status,
+          statusText: error.response?.statusText,
+          url: error.config?.url
+        });
       }
     }
   );

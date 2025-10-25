@@ -871,7 +871,7 @@ function StaffManagement() {
                     <td className="px-6 py-4 whitespace-nowrap">
                       <div className="flex items-center space-x-2">
                         <span className="text-sm text-gray-900 font-mono">
-                          {visiblePasswords[member.id] ? (member.password || '12345678') : '••••••••'}
+                          {visiblePasswords[member.id] ? '12345678' : '••••••••'}
                         </span>
                         <button
                           onClick={() => togglePasswordVisibility(member.id)}
@@ -1129,7 +1129,7 @@ function StaffManagement() {
                     <label className="block text-sm font-medium text-gray-700 mb-1">Password</label>
                     <div className="flex items-center space-x-2">
                       <span className="text-sm text-gray-900 font-mono bg-gray-100 px-3 py-1 rounded">
-                        {visiblePasswords[viewingStaff.id] ? (viewingStaff.password || '12345678') : '••••••••'}
+                        {visiblePasswords[viewingStaff.id] ? '12345678' : '••••••••'}
                       </span>
                       <button
                         onClick={() => togglePasswordVisibility(viewingStaff.id)}
