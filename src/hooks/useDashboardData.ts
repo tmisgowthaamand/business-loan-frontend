@@ -289,16 +289,22 @@ export const useDashboardData = () => {
       };
     },
     {
-      enabled: !!user, // Only run when user is available
-      // Render-optimized refresh settings for better performance
-      staleTime: 2 * 60 * 1000, // 2 minutes - more frequent refresh for Render
-      cacheTime: 15 * 60 * 1000, // 15 minutes cache for Render persistence
-      refetchInterval: 60 * 1000, // Auto-refresh every 60 seconds for Render optimization
-      refetchOnWindowFocus: true,
-      refetchOnMount: true,
-      refetchIntervalInBackground: false, // Disable background refresh on Render for performance
+      // Enhanced data persistence for Render/Vercel deployment
+      staleTime: 5 * 60 * 1000, // 5 minutes - longer stale time for better persistence
+      cacheTime: 30 * 60 * 1000, // 30 minutes - extended cache for deployment
       
-      // Enhanced retry configuration for Render
+      // Optimized refetch behavior for deployment
+      refetchOnWindowFocus: true, // Refresh when user returns to tab
+      refetchOnMount: true, // Always fetch fresh data on component mount
+      refetchOnReconnect: true, // Refetch when internet reconnects
+      refetchInterval: 4 * 60 * 1000, // Auto-refresh every 4 minutes for dashboard
+      refetchIntervalInBackground: false, // Don't refresh when tab is not active
+      
+      // Enhanced data persistence - prevent data loss
+      keepPreviousData: true, // Prevent blank dashboard during refetch
+      suspense: false,
+      
+      // Enhanced error handling for deployment
       retry: (failureCount, error: any) => {
         // Don't retry on 4xx errors (client errors)
         if (error?.response?.status >= 400 && error?.response?.status < 500) {
@@ -307,7 +313,14 @@ export const useDashboardData = () => {
         // Retry up to 3 times for network errors and 5xx errors
         return failureCount < 3;
       },
-      retryDelay: (attemptIndex) => Math.min(1000 * 2 ** attemptIndex, 10000),
+      retryDelay: (attemptIndex) => {
+        // Exponential backoff optimized for deployment
+        const delay = Math.min(1000 * 2 ** attemptIndex, 15000);
+        console.log(`⏳ [RENDER] Dashboard query retry ${attemptIndex + 1} in ${delay}ms`);
+        return delay;
+      },
+      
+      enabled: !!user, // Only run query when user is available
       
       onSuccess: (data) => {
         console.log('📊 [RENDER] Dashboard data updated successfully:', {

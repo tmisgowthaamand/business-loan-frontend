@@ -13,17 +13,21 @@ const queryClient = new QueryClient({
   defaultOptions: {
     queries: {
       // Enhanced data persistence settings for Render deployment
-      staleTime: 3 * 60 * 1000, // 3 minutes - balanced freshness for Render
-      cacheTime: 20 * 60 * 1000, // 20 minutes - optimal cache duration for Render
+      staleTime: 5 * 60 * 1000, // 5 minutes - longer stale time for better persistence
+      cacheTime: 30 * 60 * 1000, // 30 minutes - extended cache for Render deployment
       
       // Render-optimized refetch behavior
       refetchOnWindowFocus: true, // Refresh when user returns to tab
       refetchOnMount: true, // Always fetch fresh data on component mount
       refetchOnReconnect: true, // Refetch when internet reconnects
       
-      // Background updates optimized for Render cold starts
-      refetchInterval: 2 * 60 * 1000, // Auto-refresh every 2 minutes (less aggressive for Render)
+      // Background updates optimized for Render cold starts and data persistence
+      refetchInterval: 3 * 60 * 1000, // Auto-refresh every 3 minutes (optimized for Render)
       refetchIntervalInBackground: false, // Don't refresh when tab is not active
+      
+      // Enhanced data persistence - prevent data loss
+      suspense: false,
+      useErrorBoundary: false,
       
       // Enhanced error handling for Render deployment
       retry: (failureCount, error: any) => {
