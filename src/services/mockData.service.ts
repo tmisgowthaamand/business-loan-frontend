@@ -6,7 +6,7 @@
 // Employee: dinesh@gmail.com / 12345678 (Dinesh)
 // Admin: tmsnunciya59@gmail.com / 12345678 (Nunciya)
 // Admin: admin@businessloan.com / 12345678 (Admin User)
-// Admin: admin@gmail.com / 12345678 (Admin User)
+// Admin: admin@gmail.com / admin123 (Admin User)
 
 export class MockDataService {
   // Mock enquiries data - COMPREHENSIVE LOCALHOST DATA
@@ -1045,7 +1045,7 @@ export class MockDataService {
         id: 7,
         name: 'Admin User',
         email: 'admin@gmail.com',
-        password: '12345678', // Updated to match other staff
+        password: 'admin123', // Updated admin password
         role: 'ADMIN',
         department: 'Administration',
         verified: true,

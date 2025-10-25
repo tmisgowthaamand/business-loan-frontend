@@ -70,6 +70,11 @@ function StaffManagement() {
               Role: <strong>{user?.role}</strong>
             </p>
           </div>
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 mb-4">
+            <p className="text-sm text-green-800">
+              <strong>Admin Login:</strong> admin@gmail.com / admin123
+            </p>
+          </div>
           <p className="text-sm text-gray-500">
             Please contact the administrator if you need access to staff management.
           </p>
@@ -171,9 +176,13 @@ function StaffManagement() {
           '✅ Verification email sent successfully!' : 
           '❌ Failed to send verification email - check SMTP settings';
         
+        const verificationStatus = response.data.verificationRequired ?
+          '📝 Email verification required before activation' :
+          '✅ Staff member activated immediately';
+        
         // Show enhanced success message prominently in screen
         toast.success(
-          `🎉 Staff member created successfully!\n${emailStatus}\n📋 Check notification panel for staff notification!`, 
+          `🎉 Staff member created successfully!\n${emailStatus}\n${verificationStatus}\n📋 Check notification panel for staff notification!`, 
           {
             duration: 8000,
             position: 'top-center',
@@ -405,6 +414,67 @@ function StaffManagement() {
           queryClient.setQueryData('staff', context.previousStaff);
         }
         toast.error(error.response?.data?.message || 'Failed to grant access');
+      },
+    }
+  );
+
+  // Verify staff member mutation with optimistic updates
+  const verifyStaffMutation = useMutation(
+    async (userId: number) => {
+      return api.post(`/api/staff/verify/${userId}`);
+    },
+    {
+      onMutate: async (userId) => {
+        await queryClient.cancelQueries('staff');
+        const previousStaff = queryClient.getQueryData('staff');
+
+        // Optimistically update staff status to ACTIVE
+        queryClient.setQueryData('staff', (old: any) => ({
+          ...old,
+          staff: old?.staff?.map((member: any) => 
+            member.id === userId 
+              ? { ...member, status: 'ACTIVE', hasAccess: true, verified: true }
+              : member
+          ) || [],
+        }));
+
+        return { previousStaff };
+      },
+      onSuccess: (response) => {
+        const message = response.data.activated 
+          ? '✅ Staff member verified and activated successfully! They can now login.' 
+          : '✅ Staff member was already verified.';
+        
+        toast.success(message, {
+          duration: 5000,
+          position: 'top-center',
+          style: {
+            background: 'linear-gradient(135deg, #10B981 0%, #059669 100%)',
+            color: '#fff',
+            fontWeight: 'bold',
+            fontSize: '16px',
+            padding: '20px',
+            borderRadius: '12px',
+            boxShadow: '0 10px 25px rgba(16, 185, 129, 0.3)',
+            border: '2px solid #34D399',
+            maxWidth: '500px',
+            textAlign: 'center'
+          }
+        });
+        
+        setTimeout(() => {
+          queryClient.invalidateQueries('staff');
+          queryClient.invalidateQueries('staff-stats');
+          // Refresh notifications to show verification notification
+          queryClient.invalidateQueries('global-notifications');
+          queryClient.invalidateQueries('global-notification-count');
+        }, 100);
+      },
+      onError: (error: any, _, context) => {
+        if (context?.previousStaff) {
+          queryClient.setQueryData('staff', context.previousStaff);
+        }
+        toast.error(error.response?.data?.message || 'Failed to verify staff member');
       },
     }
   );
@@ -958,14 +1028,24 @@ function StaffManagement() {
                         </button>
 
                         {member.status === 'PENDING' && (
-                          <button
-                            onClick={() => resendVerificationMutation.mutate(member.id)}
-                            disabled={resendVerificationMutation.isLoading}
-                            className="inline-flex items-center px-2 py-1 border border-orange-300 rounded-md text-orange-700 bg-orange-50 hover:bg-orange-100 disabled:opacity-50 transition-colors"
-                            title="Resend Verification Email"
-                          >
-                            <EnvelopeIcon className="h-4 w-4" />
-                          </button>
+                          <>
+                            <button
+                              onClick={() => verifyStaffMutation.mutate(member.id)}
+                              disabled={verifyStaffMutation.isLoading}
+                              className="inline-flex items-center px-2 py-1 border border-green-300 rounded-md text-green-700 bg-green-50 hover:bg-green-100 disabled:opacity-50 transition-colors"
+                              title="Verify & Activate Staff Member"
+                            >
+                              <CheckIcon className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => resendVerificationMutation.mutate(member.id)}
+                              disabled={resendVerificationMutation.isLoading}
+                              className="inline-flex items-center px-2 py-1 border border-orange-300 rounded-md text-orange-700 bg-orange-50 hover:bg-orange-100 disabled:opacity-50 transition-colors"
+                              title="Resend Verification Email"
+                            >
+                              <EnvelopeIcon className="h-4 w-4" />
+                            </button>
+                          </>
                         )}
 
                         <button
