@@ -42,7 +42,7 @@ function AppRoutes() {
               <Route path="/enquiries/new" element={<EnquiryForm />} />
               <Route path="/enquiries/:id" element={<EnquiryForm />} />
               <Route path="/enquiries/:id/edit" element={<EnquiryForm />} />
-              <Route path="/documents" element={<DocumentVerificationRouter />} />
+              <Route path="/documents" element={<DocumentUpload />} />
               <Route path="/documents/upload" element={<DocumentUpload />} />
               <Route path="/documents/verification" element={<DocumentVerificationRouter />} />
               
