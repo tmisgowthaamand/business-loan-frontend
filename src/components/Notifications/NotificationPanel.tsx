@@ -14,7 +14,7 @@ import toast from 'react-hot-toast';
 
 interface Notification {
   id: string;
-  type: 'NEW_ENQUIRY' | 'DOCUMENT_UPLOADED' | 'DOCUMENT_VERIFIED' | 'DOCUMENT_PENDING' | 'SHORTLISTED' | 'PAYMENT_APPLIED' | 'STAFF_ADDED' | 'STATUS_UPDATED' | 'ENQUIRY_ASSIGNED' | 'ENQUIRY_COMPLETED' | 'LOAN_APPROVED' | 'LOAN_REJECTED' | 'TRANSACTION_COMPLETED' | 'DOCUMENT_REJECTED';
+  type: 'NEW_ENQUIRY' | 'DOCUMENT_UPLOADED' | 'DOCUMENT_VERIFIED' | 'SHORTLISTED' | 'PAYMENT_APPLIED' | 'STAFF_ADDED' | 'STATUS_UPDATED' | 'ENQUIRY_ASSIGNED' | 'ENQUIRY_COMPLETED' | 'LOAN_APPROVED' | 'LOAN_REJECTED' | 'TRANSACTION_COMPLETED';
   title: string;
   message: string;
   createdAt: string;
@@ -144,7 +144,7 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
   // Filter notifications based on active tab
   const allNotifications = notifications && notifications.length > 0 ? notifications : sampleNotifications;
   const displayNotifications = activeTab === 'all' 
-    ? allNotifications.filter(n => !n.archived || n.archived === undefined)
+    ? allNotifications.filter(n => !n.archived)
     : allNotifications.filter(n => n.archived === true);
 
   // Delete notification function
@@ -404,9 +404,9 @@ const NotificationPanel: React.FC<NotificationPanelProps> = ({ isOpen, onClose }
               >
                 <ArchiveBoxIcon className="h-4 w-4 inline mr-1" />
                 Archived
-                {activeTab === 'archived' && allNotifications.filter(n => n.archived === true).length > 0 && (
+                {activeTab === 'archived' && allNotifications.filter(n => n.archived).length > 0 && (
                   <span className="ml-2 bg-gray-500 text-white text-xs font-medium px-2 py-0.5 rounded-full">
-                    {allNotifications.filter(n => n.archived === true).length}
+                    {allNotifications.filter(n => n.archived).length}
                   </span>
                 )}
               </button>
