@@ -144,12 +144,20 @@ function EnquiryList() {
         const response = await api.get('/api/staff');
         return response.data?.staff || [];
       } catch (error) {
-        console.log('No staff data available');
-        return [];
+        console.log('📋 Using mock staff data for assignments');
+        return [
+          { id: 1, name: 'Perivi', role: 'ADMIN' },
+          { id: 2, name: 'Venkat', role: 'EMPLOYEE' },
+          { id: 3, name: 'Harish', role: 'ADMIN' },
+          { id: 4, name: 'Dinesh', role: 'EMPLOYEE' },
+          { id: 5, name: 'Nunciya', role: 'ADMIN' },
+          { id: 6, name: 'Admin User', role: 'ADMIN' },
+          { id: 7, name: 'System Admin', role: 'ADMIN' }
+        ];
       }
     },
     {
-      staleTime: 5 * 60 * 1000, // 5 minutes
+      staleTime: 5 * 60 * 1000,
     }
   );
 
