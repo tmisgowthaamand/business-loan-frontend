@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document Verification - Business Loan Portal</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: linear-gradient(135deg, #f8fafc 0%, #e0f2fe 100%);
+            min-height: 100vh;
+            color: #1f2937;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 2rem;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+        
+        .logo {
+            width: 64px;
+            height: 64px;
+            margin: 0 auto 1rem;
+            background: #3b82f6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 24px;
+        }
+        
+        h1 {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .subtitle {
+            color: #6b7280;
+            font-size: 1rem;
+        }
+        
+        .status-banner {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+            text-align: center;
+        }
+        
+        .status-banner strong {
+            color: #92400e;
+        }
+        
+        .document-grid {
+            display: grid;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+        
+        .client-card {
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .client-header {
+            background: #f9fafb;
+            padding: 1.5rem;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .client-name {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1f2937;
+            margin-bottom: 0.5rem;
+        }
+        
+        .client-info {
+            color: #6b7280;
+            font-size: 0.875rem;
+        }
+        
+        .documents-list {
+            padding: 1.5rem;
+        }
+        
+        .document-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #f9fafb;
+            border-radius: 8px;
+            margin-bottom: 0.75rem;
+        }
+        
+        .document-info {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+        
+        .document-icon {
+            width: 32px;
+            height: 32px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+        
+        .verified {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .pending {
+            background: #fef3c7;
+            color: #d97706;
+        }
+        
+        .document-details h4 {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 0.25rem;
+        }
+        
+        .document-details p {
+            font-size: 0.75rem;
+            color: #6b7280;
+        }
+        
+        .document-actions {
+            display: flex;
+            gap: 0.5rem;
+        }
+        
+        .btn {
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: none;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .btn-verify {
+            background: #dcfce7;
+            color: #16a34a;
+        }
+        
+        .btn-verify:hover {
+            background: #bbf7d0;
+        }
+        
+        .btn-view {
+            background: #e0f2fe;
+            color: #0284c7;
+        }
+        
+        .btn-view:hover {
+            background: #bae6fd;
+        }
+        
+        .staff-section {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid #e5e7eb;
+        }
+        
+        .staff-label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: #374151;
+            margin-bottom: 0.5rem;
+        }
+        
+        .staff-select {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 0.875rem;
+            background: white;
+        }
+        
+        .shortlist-btn {
+            background: #3b82f6;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            border: none;
+            border-radius: 8px;
+            font-weight: 500;
+            cursor: pointer;
+            margin-top: 1rem;
+            width: 100%;
+        }
+        
+        .shortlist-btn:hover {
+            background: #2563eb;
+        }
+        
+        .shortlist-btn:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        
+        .info-panel {
+            background: #dbeafe;
+            border: 1px solid #3b82f6;
+            border-radius: 8px;
+            padding: 1rem;
+            margin-bottom: 2rem;
+        }
+        
+        .info-title {
+            font-weight: 600;
+            color: #1e40af;
+            margin-bottom: 0.75rem;
+        }
+        
+        .doc-types {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 0.5rem;
+        }
+        
+        .doc-type {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-size: 0.875rem;
+            color: #1e40af;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">📄</div>
+            <h1>Document Verification</h1>
+            <p class="subtitle">3 enquiries • 11 documents to review</p>
+        </div>
+
+        <div class="status-banner">
+            <strong>📱 Offline Mode:</strong> Using demo data for document verification
+        </div>
+
+        <div class="info-panel">
+            <div class="info-title">Mandatory Document Types (7 Required)</div>
+            <div class="doc-types">
+                <div class="doc-type">📄 GST Certificate</div>
+                <div class="doc-type">🏭 UDYAM Registration</div>
+                <div class="doc-type">🏦 Bank Statement</div>
+                <div class="doc-type">🆔 Owner PAN Card</div>
+                <div class="doc-type">📋 Aadhar Card</div>
+                <div class="doc-type">🌐 Website & Gateway</div>
+                <div class="doc-type">🏷️ IE Code</div>
+            </div>
+        </div>
+
+        <div class="document-grid">
+            <!-- BALAMURUGAN - All documents verified -->
+            <div class="client-card">
+                <div class="client-header">
+                    <div class="client-name">BALAMURUGAN</div>
+                    <div class="client-info">📱 9876543215 • 🏢 Manufacturing</div>
+                </div>
+                <div class="documents-list">
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-icon verified">✓</div>
+                            <div class="document-details">
+                                <h4>GST Certificate</h4>
+                                <p>Verified</p>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-view">👁️ View</button>
+                            <button class="btn btn-verify">Verified</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-icon verified">✓</div>
+                            <div class="document-details">
+                                <h4>UDYAM Registration</h4>
+                                <p>Verified</p>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-view">👁️ View</button>
+                            <button class="btn btn-verify">Verified</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-icon verified">✓</div>
+                            <div class="document-details">
+                                <h4>Bank Statement</h4>
+                                <p>Verified</p>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-view">👁️ View</button>
+                            <button class="btn btn-verify">Verified</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-icon verified">✓</div>
+                            <div class="document-details">
+                                <h4>Owner PAN Card</h4>
+                                <p>Verified</p>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-view">👁️ View</button>
+                            <button class="btn btn-verify">Verified</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-icon verified">✓</div>
+                            <div class="document-details">
+                                <h4>Aadhar Card</h4>
+                                <p>Verified</p>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-view">👁️ View</button>
+                            <button class="btn btn-verify">Verified</button>
+                        </div>
+                    </div>
+
+                    <div class="staff-section">
+                        <div class="staff-label">Assign Staff Member *</div>
+                        <select class="staff-select" id="staff-balamurugan">
+                            <option value="">Select staff member...</option>
+                            <option value="Perivi">Perivi - ADMIN</option>
+                            <option value="Venkat">Venkat - EMPLOYEE</option>
+                            <option value="Harish">Harish - ADMIN</option>
+                            <option value="Dinesh">Dinesh - EMPLOYEE</option>
+                            <option value="Nunciya">Nunciya - ADMIN</option>
+                            <option value="Admin User">Admin User - ADMIN</option>
+                        </select>
+                        <button class="shortlist-btn" onclick="addToShortlist('BALAMURUGAN')">
+                            👥 Add to Shortlist
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIGNESH S - Partial verification -->
+            <div class="client-card">
+                <div class="client-header">
+                    <div class="client-name">VIGNESH S</div>
+                    <div class="client-info">📱 9876543220 • 🏢 Trading</div>
+                </div>
+                <div class="documents-list">
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-icon verified">✓</div>
+                            <div class="document-details">
+                                <h4>GST Certificate</h4>
+                                <p>Verified</p>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-view">👁️ View</button>
+                            <button class="btn btn-verify">Verified</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-icon pending">⏰</div>
+                            <div class="document-details">
+                                <h4>UDYAM Registration</h4>
+                                <p>Pending verification</p>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-view">👁️ View</button>
+                            <button class="btn btn-verify">Verify</button>
+                        </div>
+                    </div>
+                    
+                    <div class="document-item">
+                        <div class="document-info">
+                            <div class="document-icon verified">✓</div>
+                            <div class="document-details">
+                                <h4>Bank Statement</h4>
+                                <p>Verified</p>
+                            </div>
+                        </div>
+                        <div class="document-actions">
+                            <button class="btn btn-view">👁️ View</button>
+                            <button class="btn btn-verify">Verified</button>
+                        </div>
+                    </div>
+
+                    <div class="staff-section">
+                        <div class="staff-label">Assign Staff Member *</div>
+                        <select class="staff-select" id="staff-vignesh">
+                            <option value="">Select staff member...</option>
+                            <option value="Perivi">Perivi - ADMIN</option>
+                            <option value="Venkat">Venkat - EMPLOYEE</option>
+                            <option value="Harish">Harish - ADMIN</option>
+                            <option value="Dinesh">Dinesh - EMPLOYEE</option>
+                            <option value="Nunciya">Nunciya - ADMIN</option>
+                            <option value="Admin User">Admin User - ADMIN</option>
+                        </select>
+                        <button class="shortlist-btn" onclick="addToShortlist('VIGNESH S')" disabled>
+                            👥 Add to Shortlist (Complete verification first)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function addToShortlist(clientName) {
+            const staffSelect = document.getElementById(clientName === 'BALAMURUGAN' ? 'staff-balamurugan' : 'staff-vignesh');
+            const selectedStaff = staffSelect.value;
+            
+            if (!selectedStaff) {
+                alert('Please assign a staff member first');
+                return;
+            }
+            
+            alert(`✅ ${clientName} has been added to shortlist!\nAssigned to: ${selectedStaff}`);
+        }
+        
+        // Log environment info
+        console.log('📄 Document Verification Fallback Page Loaded');
+        console.log('🌐 Environment:', {
+            hostname: window.location.hostname,
+            userAgent: navigator.userAgent,
+            timestamp: new Date().toISOString()
+        });
+    </script>
+</body>
+</html>

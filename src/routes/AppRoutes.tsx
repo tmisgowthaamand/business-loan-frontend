@@ -12,13 +12,9 @@ import ShortlistList from '../pages/Shortlist/ShortlistList';
 import ShortlistForm from '../pages/Shortlist/ShortlistForm';
 import CashfreeList from '../pages/Cashfree/CashfreeList';
 import CashfreeApplicationForm from '../pages/Cashfree/CashfreeApplicationForm';
-import StaffManagement from '../pages/Staff/StaffManagement';
-import TransactionList from '../pages/Transactions/TransactionList';
-import TransactionForm from '../pages/Transactions/TransactionForm';
 import LoanApplicationForm from '../pages/Apply/LoanApplicationForm';
 import RefreshTestPage from '../pages/Testing/RefreshTestPage';
 import LoginTest from '../pages/Testing/LoginTest';
-import DocumentVerificationErrorBoundary from '../components/DocumentVerificationErrorBoundary';
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
   const { canManageStaff } = useStaffPermissions();
@@ -43,21 +39,9 @@ function AppRoutes() {
               <Route path="/enquiries/new" element={<EnquiryForm />} />
               <Route path="/enquiries/:id" element={<EnquiryForm />} />
               <Route path="/enquiries/:id/edit" element={<EnquiryForm />} />
-              <Route path="/documents" element={
-                <DocumentVerificationErrorBoundary>
-                  <DocumentUpload />
-                </DocumentVerificationErrorBoundary>
-              } />
-              <Route path="/documents/upload" element={
-                <DocumentVerificationErrorBoundary>
-                  <DocumentUpload />
-                </DocumentVerificationErrorBoundary>
-              } />
-              <Route path="/documents/verification" element={
-                <DocumentVerificationErrorBoundary>
-                  <DocumentVerificationRouter />
-                </DocumentVerificationErrorBoundary>
-              } />
+              <Route path="/documents" element={<DocumentUpload />} />
+              <Route path="/documents/upload" element={<DocumentUpload />} />
+              <Route path="/documents/verification" element={<DocumentVerificationRouter />} />
               
               {/* Routes accessible to both ADMIN and EMPLOYEE */}
               <Route path="/shortlist" element={<ShortlistList />} />
@@ -66,20 +50,7 @@ function AppRoutes() {
               <Route path="/payment-gateway" element={<CashfreeList />} />
               <Route path="/payment-gateway/apply/:id" element={<CashfreeApplicationForm />} />
               
-              {/* Staff management route - only for admin@gmail.com */}
-              {canManageStaff && (
-                <Route path="/staff" element={<StaffManagement />} />
-              )}
               
-              {/* Admin-only routes */}
-              {user?.role === 'ADMIN' && (
-                <>
-                  <Route path="/transactions" element={<TransactionList />} />
-                  <Route path="/transactions/new" element={<TransactionForm />} />
-                  <Route path="/transactions/:id/edit" element={<TransactionForm />} />
-                  <Route path="/test-refresh" element={<RefreshTestPage />} />
-                </>
-              )}
               
               <Route path="/" element={<Navigate to="/dashboard" />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
