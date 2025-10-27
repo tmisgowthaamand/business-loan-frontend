@@ -6,6 +6,7 @@ import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import NetworkStatus from './components/NetworkStatus';
 import { RenderDataProvider } from './components/RenderDataProvider';
 import './utils/runDataTests'; // Initialize browser testing utilities
 import './i18n'; // Initialize i18n
@@ -31,12 +32,24 @@ const queryClient = new QueryClient({
       suspense: false,
       useErrorBoundary: false,
       
-      // Enhanced error handling for Render deployment
+      // Enhanced error handling for Render deployment with offline support
       retry: (failureCount, error: any) => {
         // Don't retry on 4xx errors (client errors)
         if (error?.response?.status >= 400 && error?.response?.status < 500) {
           return false;
         }
+        
+        // Check if we're offline or backend is unavailable
+        const isNetworkError = error?.code === 'ECONNREFUSED' || 
+                              error?.message?.includes('Network Error') || 
+                              error?.code === 'ERR_NETWORK' ||
+                              !navigator.onLine;
+        
+        if (isNetworkError && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+          console.log('🔄 [RENDER] Network error detected, will use mock data fallback');
+          return false; // Don't retry, let mock data handle it
+        }
+        
         // Retry up to 3 times for network errors and 5xx errors
         return failureCount < 3;
       },
@@ -53,7 +66,7 @@ const queryClient = new QueryClient({
       // Prevent unnecessary network requests
       notifyOnChangeProps: ['data', 'error', 'isLoading'],
       
-      // Global error handler for Render deployment
+      // Global error handler for Render deployment with mock data fallback
       onError: (error: any) => {
         console.error('❌ [RENDER] Global query error:', {
           message: error.message,
@@ -61,6 +74,17 @@ const queryClient = new QueryClient({
           url: error.config?.url,
           timestamp: new Date().toISOString()
         });
+        
+        // Check if we should show offline notification
+        const isNetworkError = error?.code === 'ECONNREFUSED' || 
+                              error?.message?.includes('Network Error') || 
+                              error?.code === 'ERR_NETWORK' ||
+                              !navigator.onLine;
+        
+        if (isNetworkError && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+          console.log('🔄 [RENDER] Using offline mode with mock data');
+          // Don't show error toast for network errors when mock data is available
+        }
       },
       
       // Global success handler for monitoring
@@ -132,6 +156,7 @@ function App() {
           <AuthProvider>
             <NotificationProvider>
               <BrowserRouter>
+                <NetworkStatus />
                 <AppRoutes />
                 <ScrollToTop />
                 <Toaster 

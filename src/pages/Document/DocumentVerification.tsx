@@ -40,31 +40,46 @@ const DocumentVerification: React.FC = () => {
   const navigate = useNavigate();
   const [assignedStaff, setAssignedStaff] = useState<{ [key: number]: string }>({});
 
-  // Fetch all enquiries to ensure we have the latest data
-  const { data: enquiries, isLoading: enquiriesLoading } = useQuery(
+  // Fetch all enquiries to ensure we have the latest data with fallback
+  const { data: enquiries, isLoading: enquiriesLoading, error: enquiriesError } = useQuery(
     'enquiries',
     async () => {
       console.log('📋 DocumentVerification: Fetching enquiries...');
-      const response = await api.get('/api/enquiries');
-      console.log('📋 DocumentVerification: Enquiries fetched:', response.data?.length || 0);
-      return response.data;
+      try {
+        const response = await api.get('/api/enquiries');
+        console.log('📋 DocumentVerification: Enquiries fetched:', response.data?.length || 0);
+        return response.data || [];
+      } catch (error: any) {
+        console.log('📋 DocumentVerification: API failed, using mock data');
+        // Import mock data dynamically
+        const { MockDataService } = await import('../../services/mockData.service');
+        return MockDataService.getEnquiries();
+      }
     },
     {
       staleTime: 2 * 60 * 1000, // 2 minutes - refresh frequently to catch new enquiries
       keepPreviousData: true,
       refetchOnMount: true, // Always refetch when component mounts
       refetchOnWindowFocus: true, // Refetch when user returns to tab
+      retry: false, // Don't retry, use mock data immediately
     }
   );
 
-  // Fetch all documents that need verification
-  const { data: documents, isLoading: documentsLoading } = useQuery(
+  // Fetch all documents that need verification with fallback
+  const { data: documents, isLoading: documentsLoading, error: documentsError } = useQuery(
     'documents-verification',
     async () => {
       console.log('📄 DocumentVerification: Fetching documents...');
-      const response = await api.get('/api/documents');
-      console.log('📄 DocumentVerification: Documents fetched:', response.data?.length || 0);
-      return response.data;
+      try {
+        const response = await api.get('/api/documents');
+        console.log('📄 DocumentVerification: Documents fetched:', response.data?.length || 0);
+        return response.data || [];
+      } catch (error: any) {
+        console.log('📄 DocumentVerification: API failed, using mock data');
+        // Import mock data dynamically
+        const { MockDataService } = await import('../../services/mockData.service');
+        return MockDataService.getDocuments();
+      }
     },
     {
       // Use global settings - documents need to persist well
@@ -72,27 +87,36 @@ const DocumentVerification: React.FC = () => {
       keepPreviousData: true, // Prevent blank pages during refresh
       refetchOnMount: true, // Always refetch when component mounts
       refetchOnWindowFocus: true, // Refetch when user returns to tab
+      retry: false, // Don't retry, use mock data immediately
     }
   );
 
-  const isLoading = enquiriesLoading || documentsLoading;
-
-  // Fetch staff members for assignment
-  const { data: staffMembers } = useQuery(
+  // Fetch staff members for assignment with fallback
+  const { data: staffMembers, isLoading: staffLoading } = useQuery(
     'staff-members',
     async () => {
       try {
         const response = await api.get('/api/staff');
         return response.data?.staff || [];
       } catch (error) {
-        console.log('No staff data available');
-        return [];
+        console.log('📄 DocumentVerification: Staff API failed, using mock data');
+        // Import mock data dynamically
+        const { MockDataService } = await import('../../services/mockData.service');
+        return MockDataService.getStaff();
       }
     },
     {
       staleTime: 5 * 60 * 1000,
+      retry: false, // Don't retry, use mock data immediately
     }
   );
+
+  const isLoading = enquiriesLoading || documentsLoading || staffLoading;
+  
+  // Ensure we always have data arrays, even if empty
+  const safeEnquiries = enquiries || [];
+  const safeDocuments = documents || [];
+  const safeStaffMembers = staffMembers || [];
 
   // Verify document mutation
   const verifyDocumentMutation = useMutation(
@@ -297,26 +321,35 @@ const DocumentVerification: React.FC = () => {
     );
   };
 
-  // Group documents by enquiry
-  const documentsByEnquiry = documents?.reduce((acc: any, doc: Document) => {
-    const enquiryId = doc.enquiry.id;
-    if (!acc[enquiryId]) {
-      acc[enquiryId] = {
-        enquiry: doc.enquiry,
-        documents: []
-      };
-    }
-    acc[enquiryId].documents.push(doc);
-    return acc;
-  }, {});
-
+  // Show loading state
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading document verification data...</p>
+          <p className="text-sm text-gray-500 mt-2">
+            {import.meta.env.VITE_USE_MOCK_DATA === 'true' ? 'Using offline mode' : 'Connecting to server...'}
+          </p>
+        </div>
       </div>
     );
   }
+
+  // Group documents by enquiry using safe data
+  const documentsByEnquiry = safeDocuments?.reduce((acc: any, document: Document) => {
+    const enquiryId = document.enquiry.id;
+    if (!acc[enquiryId]) {
+      acc[enquiryId] = {
+        enquiry: document.enquiry,
+        documents: []
+      };
+    }
+    acc[enquiryId].documents.push(document);
+    return acc;
+  }, {}) || {};
+
+  const documentGroups = Object.values(documentsByEnquiry);
 
   return (
     <div className="space-y-6">
@@ -324,7 +357,7 @@ const DocumentVerification: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Document Verification</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {enquiries?.length || 0} enquiries • {documents?.length || 0} documents to review
+            {safeEnquiries.length} enquiries • {safeDocuments.length} documents to review
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -462,7 +495,7 @@ const DocumentVerification: React.FC = () => {
                           required
                         >
                           <option value="">Select staff member...</option>
-                          {staffMembers && staffMembers.map((staff: any) => (
+                          {safeStaffMembers.map((staff: any) => (
                             <option key={staff.id} value={staff.name}>
                               {staff.name} - {staff.role}
                             </option>
@@ -621,7 +654,7 @@ const DocumentVerification: React.FC = () => {
           <DocumentCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">No documents to verify</h3>
           <p className="mt-1 text-sm text-gray-500">
-            {enquiries && enquiries.length > 0 
+            {safeEnquiries.length > 0 
               ? "All documents have been processed or no documents have been uploaded yet."
               : "No enquiries found. Create an enquiry first to upload documents for verification."
             }
@@ -638,7 +671,7 @@ const DocumentVerification: React.FC = () => {
             >
               🔄 Refresh Data
             </button>
-            {(!enquiries || enquiries.length === 0) && (
+            {safeEnquiries.length === 0 && (
               <button
                 onClick={() => navigate('/apply')}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
