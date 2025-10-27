@@ -8,18 +8,29 @@ const DocumentVerificationSmart: React.FC = () => {
 
   useEffect(() => {
     const checkConnection = async () => {
-      // In production with mock data enabled, use offline mode immediately
-      if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-        console.log('🔄 Production mode with mock data - using offline version');
+      // Check if we're in Vercel deployment (production)
+      const isVercelDeployment = window.location.hostname.includes('vercel.app') || 
+                                window.location.hostname.includes('.app') ||
+                                import.meta.env.PROD;
+      
+      // In production or Vercel deployment, use offline mode immediately
+      if (isVercelDeployment || import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+        console.log('🔄 Production/Vercel deployment detected - using offline mode immediately');
+        console.log('🌐 Environment:', {
+          hostname: window.location.hostname,
+          isProd: import.meta.env.PROD,
+          mockDataEnabled: import.meta.env.VITE_USE_MOCK_DATA,
+          isVercel: window.location.hostname.includes('vercel.app')
+        });
         setUseOfflineMode(true);
         setHasCheckedConnection(true);
         return;
       }
 
-      // For development, try a quick connection test
+      // For development only, try a quick connection test
       try {
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 2000); // 2 second timeout
+        const timeoutId = setTimeout(() => controller.abort(), 1000); // 1 second timeout
 
         const response = await fetch('/api/health', {
           signal: controller.signal,

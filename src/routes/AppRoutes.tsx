@@ -7,7 +7,7 @@ import Dashboard from '../pages/Dashboard/Dashboard';
 import EnquiryList from '../pages/Enquiry/EnquiryList';
 import EnquiryForm from '../pages/Enquiry/EnquiryForm';
 import DocumentUpload from '../pages/Document/DocumentUpload';
-import DocumentVerificationSmart from '../pages/Document/DocumentVerificationSmart';
+import DocumentVerificationRouter from '../pages/Document/DocumentVerificationRouter';
 import ShortlistList from '../pages/Shortlist/ShortlistList';
 import ShortlistForm from '../pages/Shortlist/ShortlistForm';
 import CashfreeList from '../pages/Cashfree/CashfreeList';
@@ -43,7 +43,7 @@ function AppRoutes() {
               <Route path="/enquiries/:id" element={<EnquiryForm />} />
               <Route path="/enquiries/:id/edit" element={<EnquiryForm />} />
               <Route path="/documents" element={<DocumentUpload />} />
-              <Route path="/documents/verification" element={<DocumentVerificationSmart />} />
+              <Route path="/documents/verification" element={<DocumentVerificationRouter />} />
               
               {/* Routes accessible to both ADMIN and EMPLOYEE */}
               <Route path="/shortlist" element={<ShortlistList />} />

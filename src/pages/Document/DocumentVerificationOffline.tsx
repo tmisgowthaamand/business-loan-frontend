@@ -45,7 +45,14 @@ const DocumentVerificationOffline: React.FC = () => {
   useEffect(() => {
     const loadMockData = async () => {
       try {
-        console.log('📄 DocumentVerificationOffline: Loading mock data...');
+        console.log('📄 DocumentVerificationOffline: Loading mock data for production...');
+        console.log('🌐 Environment info:', {
+          hostname: window.location.hostname,
+          isProd: import.meta.env.PROD,
+          mode: import.meta.env.MODE,
+          mockDataEnabled: import.meta.env.VITE_USE_MOCK_DATA
+        });
+        
         const { MockDataService } = await import('../../services/mockData.service');
         
         const mockEnquiries = MockDataService.getEnquiries();
@@ -56,20 +63,26 @@ const DocumentVerificationOffline: React.FC = () => {
         setDocuments(mockDocuments);
         setStaffMembers(mockStaff);
         
-        console.log('📄 Mock data loaded:', {
+        console.log('📄 Mock data loaded successfully:', {
           enquiries: mockEnquiries.length,
           documents: mockDocuments.length,
-          staff: mockStaff.length
+          staff: mockStaff.length,
+          sampleEnquiry: mockEnquiries[0]?.name,
+          sampleDocument: mockDocuments[0]?.type,
+          sampleStaff: mockStaff[0]?.name
         });
         
         setLoading(false);
       } catch (error) {
-        console.error('Failed to load mock data:', error);
+        console.error('❌ Failed to load mock data:', error);
+        // Even if mock data fails, show the UI
         setLoading(false);
       }
     };
 
-    loadMockData();
+    // Add a small delay to ensure the component is fully mounted
+    const timer = setTimeout(loadMockData, 100);
+    return () => clearTimeout(timer);
   }, []);
 
   // Mandatory document types
