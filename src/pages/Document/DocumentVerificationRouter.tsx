@@ -1,10 +1,10 @@
 import React from 'react';
-import DocumentVerificationDirect from './DocumentVerificationDirect';
+import DocumentVerificationOffline from './DocumentVerificationOffline';
 
 const DocumentVerificationRouter: React.FC = () => {
-  // Always use direct version for guaranteed compatibility
-  console.log('🔄 Using direct document verification - guaranteed to work');
-  return <DocumentVerificationDirect />;
+  // Always use offline version - the original working model
+  console.log('🔄 Using original document verification model');
+  return <DocumentVerificationOffline />;
 };
 
 export default DocumentVerificationRouter;

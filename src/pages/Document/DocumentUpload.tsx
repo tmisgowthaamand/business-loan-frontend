@@ -5,9 +5,6 @@ import { motion } from 'framer-motion';
 import { DocumentIcon, CheckCircleIcon, XCircleIcon, UserPlusIcon } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
-import FileUploader from '../../components/ui/FileUploader';
-import PDFViewer from '../../components/ui/PDFViewer';
-import ClientDocumentsView from '../../components/ui/ClientDocumentsView';
 
 interface Enquiry {
   id: number;
@@ -31,31 +28,7 @@ interface Document {
     name: string;
   };
 }
-// Error boundary wrapper to prevent "Something went wrong"
-const DocumentUploadWrapper: React.FC = () => {
-  try {
-    return <DocumentUpload />;
-  } catch (error) {
-    console.error('DocumentUpload error:', error);
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="bg-white rounded-lg shadow-lg p-8 max-w-md w-full">
-          <div className="text-center">
-            <DocumentIcon className="mx-auto h-12 w-12 text-blue-500 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-900 mb-2">Document Upload</h2>
-            <p className="text-gray-600 mb-4">Loading document upload system...</p>
-            <button
-              onClick={() => window.location.reload()}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-              Reload Page
-            </button>
-          </div>
-        </div>
-      </div>
-    );
-  }
-};
+// Simple wrapper without try-catch to avoid errors
 
 function DocumentUpload() {
   const [selectedEnquiry, setSelectedEnquiry] = useState('');
@@ -1070,7 +1043,19 @@ function DocumentUpload() {
                 </div>
               </div>
             )}
-            <FileUploader onUpload={handleFileUpload} />
+            <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 text-center">
+              <DocumentIcon className="mx-auto h-12 w-12 text-gray-400 mb-4" />
+              <input
+                type="file"
+                accept=".pdf"
+                onChange={(e) => {
+                  const file = e.target.files?.[0];
+                  if (file) handleFileUpload(file);
+                }}
+                className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+              />
+              <p className="mt-2 text-sm text-gray-500">Upload PDF document</p>
+            </div>
             {uploadMutation.isLoading && (
               <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg">
                 <div className="flex items-center">
@@ -1240,7 +1225,19 @@ function DocumentUpload() {
 
           {selectedEnquiry && (isSequentialMode ? currentDocument : selectedType) && assignedStaff ? (
             <div className="relative">
-              <FileUploader onUpload={handleFileUpload} />
+              <div className="border-2 border-dashed border-blue-300 rounded-lg p-6 text-center bg-blue-50">
+                <DocumentIcon className="mx-auto h-12 w-12 text-blue-400 mb-4" />
+                <input
+                  type="file"
+                  accept=".pdf"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) handleFileUpload(file);
+                  }}
+                  className="block w-full text-sm text-gray-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-blue-50 file:text-blue-700 hover:file:bg-blue-100"
+                />
+                <p className="mt-2 text-sm text-blue-600">Upload PDF document</p>
+              </div>
               {uploadMutation.isLoading && (
                 <div className="absolute inset-0 bg-white bg-opacity-75 flex items-center justify-center rounded-lg">
                   <div className="flex items-center">
@@ -1485,33 +1482,32 @@ function DocumentUpload() {
         </div>
       </motion.div>
 
-      {/* PDF Viewer Modal */}
-      <PDFViewer
-        isOpen={pdfViewer.isOpen}
-        onClose={closePdfViewer}
-        documentName={pdfViewer.documentName}
-        documentType={pdfViewer.documentType}
-        documentUrl={pdfViewer.documentUrl}
-        documentId={pdfViewer.documentId}
-        isVerified={pdfViewer.isVerified}
-        onVerify={(documentId) => {
-          verifyMutation.mutate(documentId);
-          // Update the PDF viewer state to show verified status
-          setPdfViewer(prev => ({ ...prev, isVerified: true }));
-        }}
-      />
-
-      {/* Client Documents View Modal */}
-      <ClientDocumentsView
-        isOpen={clientDocumentsView.isOpen}
-        onClose={closeClientDocumentsView}
-        clientId={clientDocumentsView.clientId}
-        clientName={clientDocumentsView.clientName}
-        documents={documents || []}
-      />
+      {/* PDF Viewer Modal - Simplified */}
+      {pdfViewer.isOpen && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-6 max-w-md w-full mx-4">
+            <h3 className="text-lg font-semibold mb-4">{pdfViewer.documentName}</h3>
+            <p className="text-gray-600 mb-4">PDF viewer would open here</p>
+            <div className="flex justify-end space-x-2">
+              <button
+                onClick={() => setPdfViewer({ ...pdfViewer, isOpen: false })}
+                className="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400"
+              >
+                Close
+              </button>
+              <button
+                onClick={() => window.open(pdfViewer.documentUrl, '_blank')}
+                className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700"
+              >
+                Open PDF
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
     </div>
   );
 }
 
-export default DocumentUploadWrapper;
+export default DocumentUpload;
