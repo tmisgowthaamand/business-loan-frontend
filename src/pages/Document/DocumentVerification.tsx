@@ -13,6 +13,7 @@ import {
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
+import DocumentVerificationErrorBoundary from '../../components/DocumentVerificationErrorBoundary';
 
 interface Document {
   id: number;
@@ -40,74 +41,97 @@ const DocumentVerification: React.FC = () => {
   const navigate = useNavigate();
   const [assignedStaff, setAssignedStaff] = useState<{ [key: number]: string }>({});
 
-  // Fetch all enquiries to ensure we have the latest data with fallback
+  // Fetch all enquiries with immediate mock data fallback for production
   const { data: enquiries, isLoading: enquiriesLoading, error: enquiriesError } = useQuery(
     'enquiries',
     async () => {
-      console.log('📋 DocumentVerification: Fetching enquiries...');
+      console.log('📋 DocumentVerification: Starting enquiries fetch...');
+      
+      // In production with mock data enabled, use mock data immediately
+      if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+        console.log('📋 DocumentVerification: Production mode - using mock data immediately');
+        const { MockDataService } = await import('../../services/mockData.service');
+        return MockDataService.getEnquiries();
+      }
+      
       try {
         const response = await api.get('/api/enquiries');
         console.log('📋 DocumentVerification: Enquiries fetched:', response.data?.length || 0);
         return response.data || [];
       } catch (error: any) {
-        console.log('📋 DocumentVerification: API failed, using mock data');
-        // Import mock data dynamically
+        console.log('📋 DocumentVerification: API failed, using mock data fallback');
         const { MockDataService } = await import('../../services/mockData.service');
         return MockDataService.getEnquiries();
       }
     },
     {
-      staleTime: 2 * 60 * 1000, // 2 minutes - refresh frequently to catch new enquiries
+      staleTime: 2 * 60 * 1000,
       keepPreviousData: true,
-      refetchOnMount: true, // Always refetch when component mounts
-      refetchOnWindowFocus: true, // Refetch when user returns to tab
-      retry: false, // Don't retry, use mock data immediately
+      refetchOnMount: false, // Don't refetch in production to avoid API calls
+      refetchOnWindowFocus: false, // Don't refetch in production
+      retry: false,
     }
   );
 
-  // Fetch all documents that need verification with fallback
+  // Fetch all documents with immediate mock data fallback for production
   const { data: documents, isLoading: documentsLoading, error: documentsError } = useQuery(
     'documents-verification',
     async () => {
-      console.log('📄 DocumentVerification: Fetching documents...');
+      console.log('📄 DocumentVerification: Starting documents fetch...');
+      
+      // In production with mock data enabled, use mock data immediately
+      if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+        console.log('📄 DocumentVerification: Production mode - using mock data immediately');
+        const { MockDataService } = await import('../../services/mockData.service');
+        return MockDataService.getDocuments();
+      }
+      
       try {
         const response = await api.get('/api/documents');
         console.log('📄 DocumentVerification: Documents fetched:', response.data?.length || 0);
         return response.data || [];
       } catch (error: any) {
-        console.log('📄 DocumentVerification: API failed, using mock data');
-        // Import mock data dynamically
+        console.log('📄 DocumentVerification: API failed, using mock data fallback');
         const { MockDataService } = await import('../../services/mockData.service');
         return MockDataService.getDocuments();
       }
     },
     {
-      // Use global settings - documents need to persist well
-      staleTime: 3 * 60 * 1000, // 3 minutes
-      keepPreviousData: true, // Prevent blank pages during refresh
-      refetchOnMount: true, // Always refetch when component mounts
-      refetchOnWindowFocus: true, // Refetch when user returns to tab
-      retry: false, // Don't retry, use mock data immediately
+      staleTime: 3 * 60 * 1000,
+      keepPreviousData: true,
+      refetchOnMount: false, // Don't refetch in production to avoid API calls
+      refetchOnWindowFocus: false, // Don't refetch in production
+      retry: false,
     }
   );
 
-  // Fetch staff members for assignment with fallback
+  // Fetch staff members with immediate mock data fallback for production
   const { data: staffMembers, isLoading: staffLoading } = useQuery(
     'staff-members',
     async () => {
+      console.log('👥 DocumentVerification: Starting staff fetch...');
+      
+      // In production with mock data enabled, use mock data immediately
+      if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
+        console.log('👥 DocumentVerification: Production mode - using mock data immediately');
+        const { MockDataService } = await import('../../services/mockData.service');
+        return MockDataService.getStaff();
+      }
+      
       try {
         const response = await api.get('/api/staff');
         return response.data?.staff || [];
       } catch (error) {
-        console.log('📄 DocumentVerification: Staff API failed, using mock data');
-        // Import mock data dynamically
+        console.log('👥 DocumentVerification: Staff API failed, using mock data fallback');
         const { MockDataService } = await import('../../services/mockData.service');
         return MockDataService.getStaff();
       }
     },
     {
       staleTime: 5 * 60 * 1000,
-      retry: false, // Don't retry, use mock data immediately
+      refetchOnMount: false, // Don't refetch in production to avoid API calls
+      refetchOnWindowFocus: false, // Don't refetch in production
+      retry: false,
     }
   );
 
@@ -686,4 +710,12 @@ const DocumentVerification: React.FC = () => {
   );
 };
 
-export default DocumentVerification;
+const DocumentVerificationWithErrorBoundary: React.FC = () => {
+  return (
+    <DocumentVerificationErrorBoundary>
+      <DocumentVerification />
+    </DocumentVerificationErrorBoundary>
+  );
+};
+
+export default DocumentVerificationWithErrorBoundary;
