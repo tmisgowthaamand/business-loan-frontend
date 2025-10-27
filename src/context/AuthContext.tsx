@@ -1,6 +1,7 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import toast from 'react-hot-toast';
 import api from '../lib/api';
+import { SecureTokenStorage } from '../utils/secureTokenStorage';
 
 interface User {
   id: number;
@@ -26,7 +27,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = localStorage.getItem('token');
+    const token = SecureTokenStorage.getToken();
     if (token) {
       // Token is handled by api interceptors
       fetchUserProfile();
@@ -37,33 +38,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserProfile = async () => {
     try {
-      // Try to get user data from localStorage
-      const storedUser = localStorage.getItem('user');
-      if (storedUser && storedUser !== 'undefined' && storedUser !== 'null') {
-        try {
-          const userData = JSON.parse(storedUser);
-          if (userData && userData.id) {
-            setUser(userData);
-            setIsAuthenticated(true);
-          } else {
-            throw new Error('Invalid user data');
-          }
-        } catch (parseError) {
-          console.error('❌ Error parsing stored user data:', parseError);
-          localStorage.removeItem('token');
-          localStorage.removeItem('user');
-          setUser(null);
-          setIsAuthenticated(false);
-        }
+      // Try to get user data from secure storage
+      const storedUser = SecureTokenStorage.getUser();
+      if (storedUser && storedUser.id) {
+        setUser(storedUser);
+        setIsAuthenticated(true);
       } else {
         // No stored user data
         setUser(null);
         setIsAuthenticated(false);
       }
     } catch (error) {
-      console.error('❌ Error in fetchUserProfile:', error);
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('❌ Error in fetchUserProfile:', error);
+      }
+      SecureTokenStorage.clearAll();
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -73,7 +62,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (credentials: { email: string; password: string }) => {
     try {
-      console.log('🔐 [VERCEL] Attempting staff login with:', credentials.email);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('🔐 [VERCEL] Attempting staff login with:', credentials.email);
+      }
       
       // Try multiple authentication endpoints for Vercel compatibility
       let response;
@@ -83,17 +74,25 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         // Primary auth endpoint
         response = await api.post('/api/auth/login', credentials);
         data = response.data;
-        console.log('✅ [VERCEL] Primary auth successful');
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('✅ [VERCEL] Primary auth successful');
+        }
       } catch (primaryError) {
-        console.log('⚠️ [VERCEL] Primary auth failed, trying force-fresh-login:', primaryError.message);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('⚠️ [VERCEL] Primary auth failed, trying force-fresh-login:', primaryError.message);
+        }
         
         try {
           // Fallback to force-fresh-login endpoint
           response = await api.post('/api/auth/force-fresh-login', credentials);
           data = response.data;
-          console.log('✅ [VERCEL] Force-fresh-login successful');
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('✅ [VERCEL] Force-fresh-login successful');
+          }
         } catch (fallbackError) {
-          console.log('⚠️ [VERCEL] Force-fresh-login failed, trying staff test endpoint:', fallbackError.message);
+          if (process.env.NODE_ENV !== 'production') {
+            console.log('⚠️ [VERCEL] Force-fresh-login failed, trying staff test endpoint:', fallbackError.message);
+          }
           
           // Final fallback to staff test endpoint
           const testResponse = await api.post('/api/staff/test/deployment-login', {
@@ -111,7 +110,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 role: testResponse.data.staff.role
               }
             };
-            console.log('✅ [VERCEL] Staff test endpoint successful');
+            if (process.env.NODE_ENV !== 'production') {
+              console.log('✅ [VERCEL] Staff test endpoint successful');
+            }
           } else {
             throw new Error('All authentication methods failed');
           }
@@ -119,13 +120,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       if (data.access_token && data.user) {
-        console.log('✅ [VERCEL] Login successful:', data.user.name, 'Role:', data.user.role);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('✅ [VERCEL] Login successful:', data.user.name, 'Role:', data.user.role);
+        }
         
-        // Store token and user data with Vercel-compatible keys
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
-        localStorage.setItem('auth-timestamp', Date.now().toString());
-        localStorage.setItem('deployment-env', 'vercel');
+        // Store token and user data securely
+        SecureTokenStorage.setToken(data.access_token);
+        SecureTokenStorage.setUser(data.user);
         
         setUser(data.user);
         setIsAuthenticated(true);
@@ -137,7 +138,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
     } catch (error: any) {
-      console.error('❌ [VERCEL] Login error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('❌ [VERCEL] Login error:', error);
+      }
       
       // Enhanced error handling for Vercel deployment
       if (error.response?.status === 403) {
@@ -147,7 +150,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         
         // Auto-retry with force fresh login for Vercel
         try {
-          await this.forceFreshLogin(credentials);
+          await forceFreshLogin(credentials);
           return;
         } catch (retryError) {
           toast.error('❌ All authentication methods failed. Please contact support.');
@@ -162,8 +165,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const logout = () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    SecureTokenStorage.clearAll();
     setUser(null);
     setIsAuthenticated(false);
     toast.success('Logged out successfully');
@@ -171,11 +173,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const forceFreshLogin = async (credentials: { email: string; password: string }) => {
     try {
-      console.log('🔄 Force fresh login for:', credentials.email);
+      if (process.env.NODE_ENV !== 'production') {
+        console.log('🔄 Force fresh login for:', credentials.email);
+      }
       
       // Clear all cached data first
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      SecureTokenStorage.clearAll();
       setUser(null);
       setIsAuthenticated(false);
       
@@ -184,19 +187,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = response.data;
       
       if (data.access_token) {
-        localStorage.setItem('token', data.access_token);
-        localStorage.setItem('user', JSON.stringify(data.user));
+        SecureTokenStorage.setToken(data.access_token);
+        SecureTokenStorage.setUser(data.user);
         
         setUser(data.user);
         setIsAuthenticated(true);
         
-        console.log('✅ Force fresh login successful:', data.user);
+        if (process.env.NODE_ENV !== 'production') {
+          console.log('✅ Force fresh login successful:', data.user);
+        }
         toast.success(`Fresh login successful! Welcome ${data.user.name} (${data.user.role})`);
       } else {
         throw new Error(data.message || 'Fresh login failed');
       }
     } catch (error: any) {
-      console.error('❌ Force fresh login error:', error);
+      if (process.env.NODE_ENV !== 'production') {
+        console.error('❌ Force fresh login error:', error);
+      }
       toast.error(error.message || 'Fresh login failed');
       throw error;
     }

@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-hot-toast';
 import api from '../../lib/api';
 import { useDashboardRefresh } from '../../hooks/useDashboardRefresh';
+import { InputSanitizer } from '../../utils/inputSanitizer';
 import { 
   CheckCircleIcon, 
   ShieldCheckIcon, 
@@ -86,22 +87,32 @@ const LoanApplicationForm: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
+    let sanitizedValue = value;
     
-    // Special handling for phone number - only allow 10 digits
-    if (name === 'phone') {
-      const numericValue = value.replace(/\D/g, ''); // Remove all non-digits
-      if (numericValue.length <= 10) {
-        setFormData(prev => ({
-          ...prev,
-          [name]: numericValue
-        }));
-      }
-      return;
+    // Apply input sanitization based on field type
+    switch (name) {
+      case 'phone':
+        sanitizedValue = InputSanitizer.sanitizePhone(value);
+        break;
+      case 'email':
+        sanitizedValue = InputSanitizer.sanitizeEmail(value);
+        break;
+      case 'businessName':
+      case 'ownerName':
+        sanitizedValue = InputSanitizer.sanitizeString(value);
+        break;
+      case 'loanAmount':
+      case 'annualRevenue':
+        const numValue = InputSanitizer.sanitizeNumber(value, 0, 100000000);
+        sanitizedValue = numValue ? numValue.toString() : '';
+        break;
+      default:
+        sanitizedValue = InputSanitizer.sanitizeString(value);
     }
     
     setFormData(prev => ({
       ...prev,
-      [name]: value
+      [name]: sanitizedValue
     }));
   };
 
