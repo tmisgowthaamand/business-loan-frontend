@@ -1,6 +1,7 @@
 import React from 'react';
 import DocumentVerificationOffline from './DocumentVerificationOffline';
 import DocumentVerificationSmart from './DocumentVerificationSmart';
+import DocumentVerificationSimple from './DocumentVerificationSimple';
 
 const DocumentVerificationRouter: React.FC = () => {
   // Check if we're in production or Vercel deployment
@@ -21,10 +22,10 @@ const DocumentVerificationRouter: React.FC = () => {
     env: import.meta.env.MODE
   });
 
-  // Use offline version immediately in production deployments
+  // Use simple version for guaranteed compatibility in production
   if (isProduction || isVercelDeployment || useMockData) {
-    console.log('🔄 Using offline document verification for production deployment');
-    return <DocumentVerificationOffline />;
+    console.log('🔄 Using simple document verification for production deployment');
+    return <DocumentVerificationSimple />;
   }
 
   // Use smart component for development

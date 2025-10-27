@@ -83,7 +83,38 @@ const DocumentVerificationOffline: React.FC = () => {
         setLoading(false);
       } catch (error) {
         console.error('❌ Failed to load mock data:', error);
-        // Even if mock data fails, show the UI
+        
+        // Create fallback data if MockDataService fails
+        const fallbackEnquiries = [
+          { id: 1, name: 'BALAMURUGAN', mobile: '9876543215', businessType: 'Manufacturing' },
+          { id: 2, name: 'VIGNESH S', mobile: '9876543220', businessType: 'Trading' },
+          { id: 3, name: 'Poorani', mobile: '9876543221', businessType: 'Textiles' }
+        ];
+        
+        const fallbackDocuments = [
+          {
+            id: 1, type: 'GST', verified: true, s3Url: '/api/documents/1/view',
+            uploadedAt: new Date().toISOString(),
+            enquiry: { id: 1, name: 'BALAMURUGAN', mobile: '9876543215', businessType: 'Manufacturing' }
+          },
+          {
+            id: 2, type: 'UDYAM', verified: false, s3Url: '/api/documents/2/view',
+            uploadedAt: new Date().toISOString(),
+            enquiry: { id: 2, name: 'VIGNESH S', mobile: '9876543220', businessType: 'Trading' }
+          }
+        ];
+        
+        const fallbackStaff = [
+          { id: 1, name: 'Pankil', role: 'ADMIN' },
+          { id: 2, name: 'Venkat', role: 'EMPLOYEE' },
+          { id: 3, name: 'Harish', role: 'ADMIN' }
+        ];
+        
+        setEnquiries(fallbackEnquiries);
+        setDocuments(fallbackDocuments);
+        setStaffMembers(fallbackStaff);
+        
+        console.log('📄 Using fallback data due to import error');
         setLoading(false);
       }
     };
