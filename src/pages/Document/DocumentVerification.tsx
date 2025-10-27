@@ -243,7 +243,7 @@ const DocumentVerification: React.FC = () => {
   // Staff assignment mutation
   const assignStaffMutation = useMutation(
     async ({ enquiryId, staffName }: { enquiryId: number; staffName: string }) => {
-      return api.patch(`/api/supabase/enquiries/${enquiryId}`, {
+      return api.patch(`/api/enquiries/${enquiryId}`, {
         assignedStaff: staffName
       });
     },

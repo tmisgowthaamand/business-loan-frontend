@@ -17,6 +17,7 @@ interface Document {
   type: string;
   fileName?: string;
   filePath?: string;
+  s3Url?: string;
   verified: boolean;
   uploadedAt?: string;
   enquiry: {
@@ -59,8 +60,15 @@ const DocumentVerificationOffline: React.FC = () => {
         const mockDocuments = MockDataService.getDocuments();
         const mockStaff = MockDataService.getStaff();
         
+        // Enhance documents with s3Url for compatibility
+        const enhancedDocuments = mockDocuments.map(doc => ({
+          ...doc,
+          s3Url: doc.filePath || `/api/documents/${doc.id}/view`,
+          uploadedAt: doc.createdAt
+        }));
+        
         setEnquiries(mockEnquiries);
-        setDocuments(mockDocuments);
+        setDocuments(enhancedDocuments);
         setStaffMembers(mockStaff);
         
         console.log('📄 Mock data loaded successfully:', {
@@ -240,7 +248,13 @@ const DocumentVerificationOffline: React.FC = () => {
                       </div>
                       <div className="flex items-center space-x-2">
                         <button
-                          onClick={() => toast('PDF viewer would open here', { icon: '👁️' })}
+                          onClick={() => {
+                            if (document.s3Url) {
+                              window.open(document.s3Url, '_blank');
+                            } else {
+                              toast('PDF viewer would open here', { icon: '👁️' });
+                            }
+                          }}
                           className="p-2 text-gray-400 hover:text-gray-600"
                         >
                           <EyeIcon className="w-4 h-4" />
