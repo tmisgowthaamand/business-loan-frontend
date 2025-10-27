@@ -18,6 +18,7 @@ import TransactionForm from '../pages/Transactions/TransactionForm';
 import LoanApplicationForm from '../pages/Apply/LoanApplicationForm';
 import RefreshTestPage from '../pages/Testing/RefreshTestPage';
 import LoginTest from '../pages/Testing/LoginTest';
+import DocumentVerificationErrorBoundary from '../components/DocumentVerificationErrorBoundary';
 function AppRoutes() {
   const { isAuthenticated, user } = useAuth();
   const { canManageStaff } = useStaffPermissions();
@@ -42,9 +43,21 @@ function AppRoutes() {
               <Route path="/enquiries/new" element={<EnquiryForm />} />
               <Route path="/enquiries/:id" element={<EnquiryForm />} />
               <Route path="/enquiries/:id/edit" element={<EnquiryForm />} />
-              <Route path="/documents" element={<DocumentUpload />} />
-              <Route path="/documents/upload" element={<DocumentUpload />} />
-              <Route path="/documents/verification" element={<DocumentVerificationRouter />} />
+              <Route path="/documents" element={
+                <DocumentVerificationErrorBoundary>
+                  <DocumentUpload />
+                </DocumentVerificationErrorBoundary>
+              } />
+              <Route path="/documents/upload" element={
+                <DocumentVerificationErrorBoundary>
+                  <DocumentUpload />
+                </DocumentVerificationErrorBoundary>
+              } />
+              <Route path="/documents/verification" element={
+                <DocumentVerificationErrorBoundary>
+                  <DocumentVerificationRouter />
+                </DocumentVerificationErrorBoundary>
+              } />
               
               {/* Routes accessible to both ADMIN and EMPLOYEE */}
               <Route path="/shortlist" element={<ShortlistList />} />

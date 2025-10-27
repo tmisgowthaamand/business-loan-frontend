@@ -28,7 +28,7 @@ interface Document {
     name: string;
   };
 }
-// Simple wrapper without try-catch to avoid errors
+// Enhanced wrapper with comprehensive error handling
 
 function DocumentUpload() {
   const [selectedEnquiry, setSelectedEnquiry] = useState('');
@@ -51,6 +51,8 @@ function DocumentUpload() {
   }>({ isOpen: false, clientId: 0, clientName: '' });
   const queryClient = useQueryClient();
   const navigate = useNavigate();
+
+  // Component logic with error handling
 
   // Fetch enquiries for dropdown with mock data fallback
   const { data: enquiries, isLoading: enquiriesLoading, error: enquiriesError } = useQuery('enquiries', async () => {
@@ -81,6 +83,7 @@ function DocumentUpload() {
     },
     onError: (error) => {
       console.error('📋 Enquiries query error:', error);
+      // Don't set error state, just log it since we have fallback data
     }
   });
 

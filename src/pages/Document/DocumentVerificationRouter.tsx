@@ -1,10 +1,10 @@
 import React from 'react';
-import DocumentVerificationOffline from './DocumentVerificationOffline';
+import DocumentVerificationSimple from './DocumentVerificationSimple';
 
 const DocumentVerificationRouter: React.FC = () => {
-  // Always use offline version - the original working model
-  console.log('🔄 Using original document verification model');
-  return <DocumentVerificationOffline />;
+  // Use simple version for better reliability
+  console.log('🔄 Using simple document verification model');
+  return <DocumentVerificationSimple />;
 };
 
 export default DocumentVerificationRouter;
