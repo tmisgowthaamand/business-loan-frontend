@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { BellIcon } from '@heroicons/react/24/outline';
 import { useNotifications } from '../../context/NotificationContext';
@@ -6,7 +6,28 @@ import NotificationPanel from './NotificationPanel';
 
 const NotificationBell: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const { unreadCount } = useNotifications();
+  const [previousCount, setPreviousCount] = useState(0);
+  const [showNewNotificationPulse, setShowNewNotificationPulse] = useState(false);
+  const { unreadCount, refreshNotifications } = useNotifications();
+
+  // Detect new notifications and show pulse animation
+  useEffect(() => {
+    if (unreadCount > previousCount && previousCount > 0) {
+      setShowNewNotificationPulse(true);
+      // Reset pulse after animation
+      setTimeout(() => setShowNewNotificationPulse(false), 3000);
+    }
+    setPreviousCount(unreadCount);
+  }, [unreadCount, previousCount]);
+
+  // Auto-refresh notifications every 30 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      refreshNotifications();
+    }, 30000);
+
+    return () => clearInterval(interval);
+  }, [refreshNotifications]);
 
   return (
     <>
@@ -18,11 +39,20 @@ const NotificationBell: React.FC = () => {
           console.log('🔔 Notification bell clicked, opening panel...');
           setIsOpen(true);
         }}
-        className="relative p-2.5 text-gray-600 hover:text-indigo-600 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-blue-50 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg border border-transparent hover:border-indigo-100"
+        className={`relative p-2.5 text-gray-600 hover:text-indigo-600 hover:bg-gradient-to-br hover:from-indigo-50 hover:to-blue-50 rounded-xl transition-all duration-300 shadow-sm hover:shadow-lg border border-transparent hover:border-indigo-100 ${
+          showNewNotificationPulse ? 'animate-pulse bg-indigo-50' : ''
+        }`}
         title={`View Notifications ${unreadCount > 0 ? `(${unreadCount} unread)` : ''}`}
       >
-        {/* Enhanced Bell Icon */}
-        <BellIcon className="h-6 w-6 transition-transform duration-200" />
+        {/* Enhanced Bell Icon with shake animation for new notifications */}
+        <motion.div
+          animate={showNewNotificationPulse ? {
+            rotate: [0, -10, 10, -10, 10, 0],
+            transition: { duration: 0.5, repeat: 2 }
+          } : {}}
+        >
+          <BellIcon className="h-6 w-6 transition-transform duration-200" />
+        </motion.div>
         
         {/* Enhanced Notification Count Badge */}
         {unreadCount > 0 && (

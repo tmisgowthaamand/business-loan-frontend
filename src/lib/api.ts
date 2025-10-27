@@ -33,6 +33,7 @@ const getBackendURL = () => {
   if (isDev) {
     const localURL = 'http://localhost:5002';
     SecureLogger.log('🔗 Development mode - using localhost');
+    console.log('🔍 Backend URL configured as:', localURL);
     return localURL;
   }
   
@@ -60,6 +61,38 @@ SecureLogger.log('🚀 Environment initialized', {
   mode: import.meta.env.MODE,
   timestamp: new Date().toISOString()
 });
+
+// Test backend connectivity
+const testBackendConnectivity = async () => {
+  try {
+    console.log('🔍 Testing backend connectivity to:', BACKEND_URL);
+    const response = await fetch(`${BACKEND_URL}/api/health`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      signal: AbortSignal.timeout(10000) // 10 second timeout
+    });
+    
+    if (response.ok) {
+      console.log('✅ Backend connectivity test successful');
+      return true;
+    } else {
+      console.error('❌ Backend connectivity test failed - Status:', response.status);
+      return false;
+    }
+  } catch (error: any) {
+    console.error('❌ Backend connectivity test failed - Error:', error.message);
+    console.error('🔍 Possible causes:');
+    console.error('   - Backend server not running on port 5002');
+    console.error('   - CORS configuration issue');
+    console.error('   - Network connectivity problem');
+    return false;
+  }
+};
+
+// Run connectivity test on initialization
+testBackendConnectivity();
 
 // Create axios instance with Render-optimized configuration
 const api = axios.create({

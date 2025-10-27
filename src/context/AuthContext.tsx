@@ -1,7 +1,6 @@
 import { createContext, useState, useEffect, ReactNode, useContext } from 'react';
 import toast from 'react-hot-toast';
-import api from '../lib/api';
-import { SecureTokenStorage } from '../utils/secureTokenStorage';
+import api from '../config/api';
 
 interface User {
   id: number;
@@ -27,9 +26,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const token = SecureTokenStorage.getToken();
+    const token = localStorage.getItem('authToken');
     if (token) {
-      // Token is handled by api interceptors
       fetchUserProfile();
     } else {
       setLoading(false);
@@ -38,21 +36,24 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const fetchUserProfile = async () => {
     try {
-      // Try to get user data from secure storage
-      const storedUser = SecureTokenStorage.getUser();
-      if (storedUser && storedUser.id) {
-        setUser(storedUser);
-        setIsAuthenticated(true);
+      const storedUser = localStorage.getItem('user');
+      if (storedUser) {
+        const userData = JSON.parse(storedUser);
+        if (userData && userData.id) {
+          setUser(userData);
+          setIsAuthenticated(true);
+        } else {
+          setUser(null);
+          setIsAuthenticated(false);
+        }
       } else {
-        // No stored user data
         setUser(null);
         setIsAuthenticated(false);
       }
     } catch (error) {
-      if (process.env.NODE_ENV !== 'production') {
-        console.error('❌ Error in fetchUserProfile:', error);
-      }
-      SecureTokenStorage.clearAll();
+      console.error('❌ Error in fetchUserProfile:', error);
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
       setUser(null);
       setIsAuthenticated(false);
     } finally {
@@ -62,95 +63,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (credentials: { email: string; password: string }) => {
     try {
-      if (process.env.NODE_ENV !== 'production') {
-        console.log('🔐 [VERCEL] Attempting staff login with:', credentials.email);
-      }
+      console.log('🔐 Attempting login for:', credentials.email);
       
-      // Try multiple authentication endpoints for Vercel compatibility
-      let response;
-      let data;
-      
-      try {
-        // Primary auth endpoint
-        response = await api.post('/api/auth/login', credentials);
-        data = response.data;
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('✅ [VERCEL] Primary auth successful');
-        }
-      } catch (primaryError) {
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('⚠️ [VERCEL] Primary auth failed, trying force-fresh-login:', primaryError.message);
-        }
-        
-        try {
-          // Fallback to force-fresh-login endpoint
-          response = await api.post('/api/auth/force-fresh-login', credentials);
-          data = response.data;
-          if (process.env.NODE_ENV !== 'production') {
-            console.log('✅ [VERCEL] Force-fresh-login successful');
-          }
-        } catch (fallbackError) {
-          if (process.env.NODE_ENV !== 'production') {
-            console.log('⚠️ [VERCEL] Force-fresh-login failed, trying staff test endpoint:', fallbackError.message);
-          }
-          
-          // Final fallback to staff test endpoint
-          const testResponse = await api.post('/api/staff/test/deployment-login', {
-            email: credentials.email,
-            password: credentials.password
-          });
-          
-          if (testResponse.data.success && testResponse.data.staff) {
-            data = {
-              access_token: 'deployment-test-token-' + Date.now(),
-              user: {
-                id: testResponse.data.staff.id,
-                name: testResponse.data.staff.name,
-                email: testResponse.data.staff.email,
-                role: testResponse.data.staff.role
-              }
-            };
-            if (process.env.NODE_ENV !== 'production') {
-              console.log('✅ [VERCEL] Staff test endpoint successful');
-            }
-          } else {
-            // Final fallback to MockDataService for production
-            if (process.env.NODE_ENV !== 'production') {
-              console.log('⚠️ [VERCEL] Trying MockDataService fallback');
-            }
-            
-            try {
-              const { MockDataService } = await import('../services/mockData.service');
-              const mockAuth = MockDataService.authenticateStaff(credentials.email, credentials.password);
-              
-              if (mockAuth) {
-                data = mockAuth;
-                if (process.env.NODE_ENV !== 'production') {
-                  console.log('✅ [VERCEL] MockDataService authentication successful');
-                }
-              } else {
-                throw new Error('MockDataService authentication failed');
-              }
-            } catch (mockError) {
-              throw new Error('All authentication methods failed including MockDataService');
-            }
-          }
-        }
-      }
+      const response = await api.post('/auth/login', credentials);
+      const data = response.data;
       
       if (data.access_token && data.user) {
-        if (process.env.NODE_ENV !== 'production') {
-          console.log('✅ [VERCEL] Login successful:', data.user.name, 'Role:', data.user.role);
-        }
+        console.log('✅ Login successful:', data.user.name, 'Role:', data.user.role);
         
-        // Store token and user data securely
-        SecureTokenStorage.setToken(data.access_token);
-        SecureTokenStorage.setUser(data.user);
+        // Store token and user data
+        localStorage.setItem('authToken', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         
         setUser(data.user);
         setIsAuthenticated(true);
         
-        toast.success(`🚀 Login successful! Welcome ${data.user.name} (${data.user.role})`);
+        toast.success(`Welcome ${data.user.name}!`);
         return;
       } else {
         throw new Error('Invalid response from server');
@@ -174,17 +102,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         } catch (retryError) {
           toast.error('❌ All authentication methods failed. Please contact support.');
         }
-      } else if (error.message.includes('Network Error')) {
-        toast.error('🌐 Network error. Check connection and try again.');
+      } else if (error.message.includes('Network Error') || error.code === 'ERR_NETWORK' || error.code === 'ECONNREFUSED') {
+        console.error('🌐 Network Error Details:', {
+          message: error.message,
+          code: error.code,
+          config: error.config
+        });
+        
+        // Check if backend is running
+        const backendUrl = error.config?.baseURL || 'http://localhost:5002';
+        toast.error(`🌐 Cannot connect to backend server at ${backendUrl}. Please ensure the backend is running.`);
+        
+        // Provide helpful instructions
+        setTimeout(() => {
+          toast.error('💡 Run: npm run start:dev in the backend folder', { duration: 5000 });
+        }, 2000);
       } else {
-        toast.error(`❌ ${error.response?.data?.message || error.message || 'Login failed on Vercel deployment'}`);
+        toast.error(`❌ ${error.response?.data?.message || error.message || 'Login failed'}`);
       }
       throw error;
     }
   };
 
   const logout = () => {
-    SecureTokenStorage.clearAll();
+    localStorage.removeItem('authToken');
+    localStorage.removeItem('user');
     setUser(null);
     setIsAuthenticated(false);
     toast.success('Logged out successfully');
@@ -197,7 +139,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       }
       
       // Clear all cached data first
-      SecureTokenStorage.clearAll();
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
       setUser(null);
       setIsAuthenticated(false);
       
@@ -206,8 +149,8 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const data = response.data;
       
       if (data.access_token) {
-        SecureTokenStorage.setToken(data.access_token);
-        SecureTokenStorage.setUser(data.user);
+        localStorage.setItem('authToken', data.access_token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         
         setUser(data.user);
         setIsAuthenticated(true);
