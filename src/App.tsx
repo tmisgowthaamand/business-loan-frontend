@@ -6,6 +6,8 @@ import { AuthProvider } from './context/AuthContext';
 import { NotificationProvider } from './context/NotificationContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import ScrollToTop from './components/ScrollToTop/ScrollToTop';
+import { RenderDataProvider } from './components/RenderDataProvider';
+import './utils/runDataTests'; // Initialize browser testing utilities
 import './i18n'; // Initialize i18n
 
 // Render-optimized React Query configuration
@@ -121,43 +123,45 @@ console.log('📊 [RENDER] Query settings:', {
 });
 
 function App() {
-  console.log('🏠 [RENDER] App component initializing...');
+  console.log('🏠 [RENDER] App component initializing with enhanced data persistence...');
   
   return (
     <ErrorBoundary>
       <QueryClientProvider client={queryClient}>
-        <AuthProvider>
-          <NotificationProvider>
-            <BrowserRouter>
-              <AppRoutes />
-              <ScrollToTop />
-              <Toaster 
-                position="top-right" 
-                toastOptions={{
-                  duration: 4000,
-                  style: {
-                    background: '#363636',
-                    color: '#fff',
-                  },
-                  success: {
-                    duration: 3000,
-                    iconTheme: {
-                      primary: '#4ade80',
-                      secondary: '#fff',
+        <RenderDataProvider>
+          <AuthProvider>
+            <NotificationProvider>
+              <BrowserRouter>
+                <AppRoutes />
+                <ScrollToTop />
+                <Toaster 
+                  position="top-right" 
+                  toastOptions={{
+                    duration: 4000,
+                    style: {
+                      background: '#363636',
+                      color: '#fff',
                     },
-                  },
-                  error: {
-                    duration: 5000,
-                    iconTheme: {
-                      primary: '#ef4444',
-                      secondary: '#fff',
+                    success: {
+                      duration: 3000,
+                      iconTheme: {
+                        primary: '#4ade80',
+                        secondary: '#fff',
+                      },
                     },
-                  },
-                }}
-              />
-            </BrowserRouter>
-          </NotificationProvider>
-        </AuthProvider>
+                    error: {
+                      duration: 5000,
+                      iconTheme: {
+                        primary: '#ef4444',
+                        secondary: '#fff',
+                      },
+                    },
+                  }}
+                />
+              </BrowserRouter>
+            </NotificationProvider>
+          </AuthProvider>
+        </RenderDataProvider>
       </QueryClientProvider>
     </ErrorBoundary>
   );
