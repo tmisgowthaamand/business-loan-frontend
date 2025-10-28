@@ -13,7 +13,6 @@ import {
 } from '@heroicons/react/24/outline';
 import toast from 'react-hot-toast';
 import api from '../../lib/api';
-import DocumentVerificationErrorBoundary from '../../components/DocumentVerificationErrorBoundary';
 
 interface Document {
   id: number;
@@ -41,106 +40,59 @@ const DocumentVerification: React.FC = () => {
   const navigate = useNavigate();
   const [assignedStaff, setAssignedStaff] = useState<{ [key: number]: string }>({});
 
-  // Fetch all enquiries with immediate mock data fallback for production
-  const { data: enquiries, isLoading: enquiriesLoading, error: enquiriesError } = useQuery(
+  // Fetch all enquiries to ensure we have the latest data
+  const { data: enquiries, isLoading: enquiriesLoading } = useQuery(
     'enquiries',
     async () => {
-      console.log('📋 DocumentVerification: Starting enquiries fetch...');
-      
-      // In production with mock data enabled, use mock data immediately
-      if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-        console.log('📋 DocumentVerification: Production mode - using mock data immediately');
-        const { MockDataService } = await import('../../services/mockData.service');
-        return MockDataService.getEnquiries();
-      }
-      
-      try {
-        const response = await api.get('/api/enquiries');
-        console.log('📋 DocumentVerification: Enquiries fetched:', response.data?.length || 0);
-        return response.data || [];
-      } catch (error: any) {
-        console.log('📋 DocumentVerification: API failed, using mock data fallback');
-        const { MockDataService } = await import('../../services/mockData.service');
-        return MockDataService.getEnquiries();
-      }
+      console.log('📋 DocumentVerification: Fetching enquiries...');
+      const response = await api.get('/api/enquiries');
+      console.log('📋 DocumentVerification: Enquiries fetched:', response.data?.length || 0);
+      return response.data;
     },
     {
-      staleTime: 2 * 60 * 1000,
+      staleTime: 2 * 60 * 1000, // 2 minutes - refresh frequently to catch new enquiries
       keepPreviousData: true,
-      refetchOnMount: false, // Don't refetch in production to avoid API calls
-      refetchOnWindowFocus: false, // Don't refetch in production
-      retry: false,
+      refetchOnMount: true, // Always refetch when component mounts
+      refetchOnWindowFocus: true, // Refetch when user returns to tab
     }
   );
 
-  // Fetch all documents with immediate mock data fallback for production
-  const { data: documents, isLoading: documentsLoading, error: documentsError } = useQuery(
+  // Fetch all documents that need verification
+  const { data: documents, isLoading: documentsLoading } = useQuery(
     'documents-verification',
     async () => {
-      console.log('📄 DocumentVerification: Starting documents fetch...');
-      
-      // In production with mock data enabled, use mock data immediately
-      if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-        console.log('📄 DocumentVerification: Production mode - using mock data immediately');
-        const { MockDataService } = await import('../../services/mockData.service');
-        return MockDataService.getDocuments();
-      }
-      
-      try {
-        const response = await api.get('/api/documents');
-        console.log('📄 DocumentVerification: Documents fetched:', response.data?.length || 0);
-        return response.data || [];
-      } catch (error: any) {
-        console.log('📄 DocumentVerification: API failed, using mock data fallback');
-        const { MockDataService } = await import('../../services/mockData.service');
-        return MockDataService.getDocuments();
-      }
+      console.log('📄 DocumentVerification: Fetching documents...');
+      const response = await api.get('/api/documents');
+      console.log('📄 DocumentVerification: Documents fetched:', response.data?.length || 0);
+      return response.data;
     },
     {
-      staleTime: 3 * 60 * 1000,
-      keepPreviousData: true,
-      refetchOnMount: false, // Don't refetch in production to avoid API calls
-      refetchOnWindowFocus: false, // Don't refetch in production
-      retry: false,
+      // Use global settings - documents need to persist well
+      staleTime: 3 * 60 * 1000, // 3 minutes
+      keepPreviousData: true, // Prevent blank pages during refresh
+      refetchOnMount: true, // Always refetch when component mounts
+      refetchOnWindowFocus: true, // Refetch when user returns to tab
     }
   );
 
-  // Fetch staff members with immediate mock data fallback for production
-  const { data: staffMembers, isLoading: staffLoading } = useQuery(
+  const isLoading = enquiriesLoading || documentsLoading;
+
+  // Fetch staff members for assignment
+  const { data: staffMembers } = useQuery(
     'staff-members',
     async () => {
-      console.log('👥 DocumentVerification: Starting staff fetch...');
-      
-      // In production with mock data enabled, use mock data immediately
-      if (import.meta.env.PROD && import.meta.env.VITE_USE_MOCK_DATA === 'true') {
-        console.log('👥 DocumentVerification: Production mode - using mock data immediately');
-        const { MockDataService } = await import('../../services/mockData.service');
-        return MockDataService.getStaff();
-      }
-      
       try {
         const response = await api.get('/api/staff');
         return response.data?.staff || [];
       } catch (error) {
-        console.log('👥 DocumentVerification: Staff API failed, using mock data fallback');
-        const { MockDataService } = await import('../../services/mockData.service');
-        return MockDataService.getStaff();
+        console.log('No staff data available');
+        return [];
       }
     },
     {
       staleTime: 5 * 60 * 1000,
-      refetchOnMount: false, // Don't refetch in production to avoid API calls
-      refetchOnWindowFocus: false, // Don't refetch in production
-      retry: false,
     }
   );
-
-  const isLoading = enquiriesLoading || documentsLoading || staffLoading;
-  
-  // Ensure we always have data arrays, even if empty
-  const safeEnquiries = enquiries || [];
-  const safeDocuments = documents || [];
-  const safeStaffMembers = staffMembers || [];
 
   // Verify document mutation
   const verifyDocumentMutation = useMutation(
@@ -243,7 +195,7 @@ const DocumentVerification: React.FC = () => {
   // Staff assignment mutation
   const assignStaffMutation = useMutation(
     async ({ enquiryId, staffName }: { enquiryId: number; staffName: string }) => {
-      return api.patch(`/api/enquiries/${enquiryId}`, {
+      return api.patch(`/api/supabase/enquiries/${enquiryId}`, {
         assignedStaff: staffName
       });
     },
@@ -345,35 +297,26 @@ const DocumentVerification: React.FC = () => {
     );
   };
 
-  // Show loading state
-  if (isLoading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-gray-600">Loading document verification data...</p>
-          <p className="text-sm text-gray-500 mt-2">
-            {import.meta.env.VITE_USE_MOCK_DATA === 'true' ? 'Using offline mode' : 'Connecting to server...'}
-          </p>
-        </div>
-      </div>
-    );
-  }
-
-  // Group documents by enquiry using safe data
-  const documentsByEnquiry = safeDocuments?.reduce((acc: any, document: Document) => {
-    const enquiryId = document.enquiry.id;
+  // Group documents by enquiry
+  const documentsByEnquiry = documents?.reduce((acc: any, doc: Document) => {
+    const enquiryId = doc.enquiry.id;
     if (!acc[enquiryId]) {
       acc[enquiryId] = {
-        enquiry: document.enquiry,
+        enquiry: doc.enquiry,
         documents: []
       };
     }
-    acc[enquiryId].documents.push(document);
+    acc[enquiryId].documents.push(doc);
     return acc;
-  }, {}) || {};
+  }, {});
 
-  const documentGroups = Object.values(documentsByEnquiry);
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -381,7 +324,7 @@ const DocumentVerification: React.FC = () => {
         <div>
           <h1 className="text-2xl font-bold text-gray-900">Document Verification</h1>
           <p className="text-sm text-gray-500 mt-1">
-            {safeEnquiries.length} enquiries • {safeDocuments.length} documents to review
+            {enquiries?.length || 0} enquiries • {documents?.length || 0} documents to review
           </p>
         </div>
         <div className="flex items-center space-x-3">
@@ -519,7 +462,7 @@ const DocumentVerification: React.FC = () => {
                           required
                         >
                           <option value="">Select staff member...</option>
-                          {safeStaffMembers.map((staff: any) => (
+                          {staffMembers && staffMembers.map((staff: any) => (
                             <option key={staff.id} value={staff.name}>
                               {staff.name} - {staff.role}
                             </option>
@@ -678,7 +621,7 @@ const DocumentVerification: React.FC = () => {
           <DocumentCheckIcon className="mx-auto h-12 w-12 text-gray-400" />
           <h3 className="mt-2 text-sm font-medium text-gray-900">No documents to verify</h3>
           <p className="mt-1 text-sm text-gray-500">
-            {safeEnquiries.length > 0 
+            {enquiries && enquiries.length > 0 
               ? "All documents have been processed or no documents have been uploaded yet."
               : "No enquiries found. Create an enquiry first to upload documents for verification."
             }
@@ -695,7 +638,7 @@ const DocumentVerification: React.FC = () => {
             >
               🔄 Refresh Data
             </button>
-            {safeEnquiries.length === 0 && (
+            {(!enquiries || enquiries.length === 0) && (
               <button
                 onClick={() => navigate('/apply')}
                 className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
@@ -710,12 +653,4 @@ const DocumentVerification: React.FC = () => {
   );
 };
 
-const DocumentVerificationWithErrorBoundary: React.FC = () => {
-  return (
-    <DocumentVerificationErrorBoundary>
-      <DocumentVerification />
-    </DocumentVerificationErrorBoundary>
-  );
-};
-
-export default DocumentVerificationWithErrorBoundary;
+export default DocumentVerification;

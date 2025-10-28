@@ -12,8 +12,6 @@ interface Notification {
   message: string;
   createdAt: string;
   read: boolean;
-  archived?: boolean;
-  priority: 'HIGH' | 'MEDIUM' | 'LOW';
   data?: {
     // Client Information
     enquiryId?: number;
@@ -65,6 +63,7 @@ interface Notification {
     // Additional Data
     [key: string]: any;
   };
+  priority: 'HIGH' | 'MEDIUM' | 'LOW';
 }
 
 interface NotificationContextType {
