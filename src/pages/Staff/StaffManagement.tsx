@@ -101,14 +101,16 @@ function StaffManagement() {
     formState: { errors },
   } = useForm<StaffFormData>();
 
-  // Fetch staff members with optimized caching
+  // Fetch staff members with optimized caching using SimpleStaff endpoints
   const { data: staffResponse, isLoading, refetch } = useQuery('staff', async () => {
-    const response = await api.get('/api/staff');
+    const response = await api.get('/api/simple-staff');
     return response.data;
   }, {
-    // Use global settings with staff-specific overrides
-    staleTime: 4 * 60 * 1000, // 4 minutes for staff data
-    keepPreviousData: true, // Prevent blank pages
+    staleTime: 30000, // 30 seconds
+    cacheTime: 300000, // 5 minutes
+    refetchOnWindowFocus: false,
+    retry: 3,
+    retryDelay: 1000,
   });
 
   // Fetch staff stats with optimized caching
@@ -127,7 +129,7 @@ function StaffManagement() {
   // Create staff mutation with optimistic updates
   const createStaffMutation = useMutation(
     async (data: StaffFormData) => {
-      return api.post('/api/staff', data);
+      return api.post('/api/simple-staff', data);
     },
     {
       onMutate: async (newStaff) => {
@@ -651,6 +653,23 @@ function StaffManagement() {
           >
             <ArrowPathIcon className="h-5 w-5 mr-2" />
             Refresh
+          </button>
+          <button
+            onClick={async () => {
+              try {
+                await api.post('/api/simple-staff/reset-to-default');
+                toast.success('Staff reset to 7 default members');
+                refetch();
+              } catch (error) {
+                toast.error('Failed to reset staff');
+              }
+            }}
+            className="bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 text-white px-4 py-2 rounded-lg inline-flex items-center shadow-md hover:shadow-lg transition-all duration-200"
+          >
+            <svg className="h-5 w-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            Reset to 7 Default
           </button>
           <div className="flex space-x-3">
             <button
