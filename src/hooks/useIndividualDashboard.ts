@@ -175,13 +175,7 @@ export const useIndividualDashboard = () => {
       let myPayments = [];
       try {
         console.log('🚀 [RENDER] Fetching payment applications for staff processing...');
-        let paymentResponse;
-        try {
-          paymentResponse = await api.get('/api/cashfree/applications');
-        } catch (firstError) {
-          console.log('🚀 [RENDER] Trying alternative payment endpoint...');
-          paymentResponse = await api.get('/api/cashfree');
-        }
+        const paymentResponse = await api.get('/api/cashfree/applications');
         const allPayments = paymentResponse.data || [];
         console.log('🚀 [RENDER] Total payment applications fetched:', allPayments.length);
         

@@ -368,7 +368,7 @@ function ModernDashboard() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.3 }}
-          className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg border border-gray-100"
+          className="lg:col-span-2 bg-white rounded-2xl p-6 shadow-lg border border-gray-100 overflow-hidden"
         >
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-xl font-bold text-gray-900">
@@ -380,9 +380,11 @@ function ModernDashboard() {
           <div className="space-y-4">
             {currentData.enquiryFunnel.map((stage: any, index: number) => (
               <div key={index} className="relative">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="text-sm font-medium text-gray-700">{stage.stage}</span>
-                  <div className="flex items-center space-x-2">
+                <div className="flex items-center justify-between mb-2 gap-3">
+                  <span className="text-sm font-medium text-gray-700 flex-1 min-w-0 truncate max-w-[60%]" title={stage.stage}>
+                    {stage.stage}
+                  </span>
+                  <div className="flex items-center space-x-2 flex-shrink-0 min-w-[40%] justify-end">
                     <span className="text-sm font-bold text-gray-900">{stage.count}</span>
                     <span className="text-xs text-gray-500">({stage.percentage}%)</span>
                   </div>

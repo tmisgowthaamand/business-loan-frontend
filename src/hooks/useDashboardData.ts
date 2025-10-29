@@ -109,18 +109,12 @@ export const useDashboardData = () => {
         verifiedDocuments = 0;
       }
 
-      // Fetch payment gateway data with multiple endpoint attempts
+      // Fetch payment gateway data from correct endpoint
       let paymentCount = 0;
       let totalPayments = 0;
       try {
-        console.log('📊 [RENDER] Fetching payments from /api/cashfree...');
-        let paymentResponse;
-        try {
-          paymentResponse = await api.get('/api/cashfree/applications');
-        } catch (firstError) {
-          console.log('📊 [RENDER] Trying alternative payment endpoint...');
-          paymentResponse = await api.get('/api/cashfree');
-        }
+        console.log('📊 [RENDER] Fetching payments from /api/cashfree/applications...');
+        const paymentResponse = await api.get('/api/cashfree/applications');
         const paymentData = paymentResponse.data || [];
         totalPayments = paymentData.length || 0;
         paymentCount = paymentData.filter((p: any) => 
@@ -205,7 +199,7 @@ export const useDashboardData = () => {
       
       console.log('📊 [RENDER] Final dashboard stats:', stats);
 
-      // Calculate funnel data from real enquiries
+      // Calculate funnel data from real enquiries with actual percentages
       const totalEnquiries = enquiries.length;
       const enquiryFunnel: EnquiryFunnelStage[] = [
         { 
@@ -215,7 +209,7 @@ export const useDashboardData = () => {
           color: 'bg-blue-500' 
         },
         { 
-          stage: 'Documents Awaiting Verification', 
+          stage: 'Docs Awaiting', 
           count: stats.documentsAwaiting, 
           percentage: totalEnquiries > 0 ? Math.round((stats.documentsAwaiting / totalEnquiries) * 100) : 0, 
           color: 'bg-indigo-500' 
@@ -361,7 +355,7 @@ export const useDashboardData = () => {
         },
         enquiryFunnel: [
           { stage: 'Initial Enquiry', count: 0, percentage: 0, color: 'bg-blue-500' },
-          { stage: 'Documents Awaiting Verification', count: 0, percentage: 0, color: 'bg-indigo-500' },
+          { stage: 'Docs Awaiting', count: 0, percentage: 0, color: 'bg-indigo-500' },
           { stage: 'Under Review', count: 0, percentage: 0, color: 'bg-purple-500' },
           { stage: 'Approved', count: 0, percentage: 0, color: 'bg-green-500' },
           { stage: 'Loan Disbursed', count: 0, percentage: 0, color: 'bg-emerald-500' },
@@ -391,7 +385,7 @@ export const useDashboardData = () => {
       },
       enquiryFunnel: [
         { stage: 'Initial Enquiry', count: 0, percentage: 0, color: 'bg-blue-500' },
-        { stage: 'Documents Awaiting Verification', count: 0, percentage: 0, color: 'bg-indigo-500' },
+        { stage: 'Docs Awaiting', count: 0, percentage: 0, color: 'bg-indigo-500' },
         { stage: 'Under Review', count: 0, percentage: 0, color: 'bg-purple-500' },
         { stage: 'Approved', count: 0, percentage: 0, color: 'bg-green-500' },
         { stage: 'Loan Disbursed', count: 0, percentage: 0, color: 'bg-emerald-500' },

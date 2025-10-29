@@ -47,7 +47,7 @@ function CashfreeList() {
         console.log('🔄 Fetching payment gateway applications...');
         
         // Fetch payment gateway applications from API endpoint
-        const gatewayResponse = await api.get('/api/cashfree').catch(err => {
+        const gatewayResponse = await api.get('/api/cashfree/applications').catch(err => {
           console.warn('⚠️ Payment gateway API error:', err.message);
           return { data: [] };
         });

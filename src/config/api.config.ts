@@ -66,7 +66,7 @@ export const API_CONFIG = {
     PAYMENT_GATEWAY: {
       BASE: '/api/cashfree',
       APPLY: '/api/cashfree/apply',
-      LIST: '/api/cashfree',
+      LIST: '/api/cashfree/applications',
       UPDATE_STATUS: (id: number) => `/api/cashfree/${id}/status`,
     },
     

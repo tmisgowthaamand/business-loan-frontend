@@ -245,7 +245,20 @@ function StaffManagement() {
           queryClient.setQueryData('staff-stats', context.previousStats);
         }
         
-        toast.error(error.response?.data?.message || 'Failed to create staff member');
+        console.error('❌ Staff creation failed:', error);
+        console.error('❌ Error details:', {
+          message: error.message,
+          response: error.response?.data,
+          status: error.response?.status,
+          config: error.config?.data
+        });
+        
+        const errorMessage = error.response?.data?.message || 
+                           error.response?.data?.error ||
+                           error.message ||
+                           'Failed to create staff member';
+        
+        toast.error(`Staff creation failed: ${errorMessage}`);
       },
     }
   );
@@ -507,7 +520,30 @@ function StaffManagement() {
   );
 
   const onCreateSubmit = (data: StaffFormData) => {
-    createStaffMutation.mutate(data);
+    console.log('📝 [DEBUG] Submitting staff data:', data);
+    console.log('📝 [DEBUG] Data type check:', {
+      name: typeof data.name,
+      email: typeof data.email,
+      password: typeof data.password,
+      role: typeof data.role,
+      department: typeof data.department,
+      position: typeof data.position,
+      clientName: typeof data.clientName
+    });
+    
+    // Clean and validate data before sending
+    const cleanData = {
+      name: data.name?.trim(),
+      email: data.email?.trim().toLowerCase(),
+      password: data.password?.trim(),
+      role: data.role,
+      ...(data.department && { department: data.department.trim() }),
+      ...(data.position && { position: data.position.trim() }),
+      ...(data.clientName && { clientName: data.clientName.trim() })
+    };
+    
+    console.log('📝 [DEBUG] Cleaned data being sent:', cleanData);
+    createStaffMutation.mutate(cleanData);
   };
 
   const togglePasswordVisibility = (staffId: number) => {
@@ -534,7 +570,12 @@ function StaffManagement() {
     }));
   };
 
-  const filteredStaff = staff?.filter((member: any) =>
+  // Remove duplicates and filter staff
+  const uniqueStaff = staff ? staff.filter((member: any, index: number, self: any[]) => 
+    index === self.findIndex((m: any) => m.id === member.id && m.email === member.email)
+  ) : [];
+  
+  const filteredStaff = uniqueStaff?.filter((member: any) =>
     member.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     member.email.toLowerCase().includes(searchTerm.toLowerCase())
   );
@@ -596,8 +637,8 @@ function StaffManagement() {
         animate={{ opacity: 1, y: 0 }}
         className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-7 gap-4"
       >
-        {staff && staff.slice(0, 7).map((member: any) => (
-          <div key={member.id} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+        {uniqueStaff && uniqueStaff.slice(0, 7).map((member: any, index: number) => (
+          <div key={`dashboard-${member.id}-${index}`} className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
             <div className="flex items-center space-x-3">
               <div className="flex-shrink-0">
                 <div className="h-12 w-12 rounded-full bg-gradient-to-r from-blue-400 to-purple-500 flex items-center justify-center">
@@ -910,7 +951,7 @@ function StaffManagement() {
               <tbody className="bg-white divide-y divide-gray-200">
                 {filteredStaff.map((member: any, index: number) => (
                   <motion.tr
-                    key={member.id}
+                    key={`staff-row-${member.id}-${member.email}-${index}`}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.05 }}
