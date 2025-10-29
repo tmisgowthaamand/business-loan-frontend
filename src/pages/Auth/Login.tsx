@@ -274,7 +274,9 @@ function Login() {
                     message: 'Invalid email address',
                   },
                 })}
+                id="email"
                 type="email"
+                autoComplete="email"
                 className="input-field"
                 placeholder="Enter your email"
               />
@@ -296,7 +298,9 @@ function Login() {
                       message: 'Password must be at least 6 characters',
                     },
                   })}
+                  id="password"
                   type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   className="input-field pr-12"
                   placeholder="Enter your password"
                 />

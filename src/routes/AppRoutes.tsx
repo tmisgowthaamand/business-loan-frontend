@@ -19,10 +19,20 @@ import LoanApplicationForm from '../pages/Apply/LoanApplicationForm';
 import RefreshTestPage from '../pages/Testing/RefreshTestPage';
 import LoginTest from '../pages/Testing/LoginTest';
 function AppRoutes() {
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated, user, loading } = useAuth();
   const { canManageStaff } = useStaffPermissions();
 
-  // Removed loading spinner - loading screens only on login page
+  // Show loading screen while authentication state is being restored
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50">
+        <div className="text-center">
+          <div className="w-16 h-16 border-4 border-green-200 border-t-green-600 rounded-full animate-spin mx-auto mb-4"></div>
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Public routes that don't require authentication
   return (

@@ -41,9 +41,11 @@ function LoginTest() {
         
         <div className="space-y-4">
           <div>
-            <label className="block text-sm font-medium mb-1">Email:</label>
+            <label htmlFor="test-email" className="block text-sm font-medium mb-1">Email:</label>
             <input
+              id="test-email"
               type="email"
+              autoComplete="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               className="w-full p-2 border rounded"
@@ -51,9 +53,11 @@ function LoginTest() {
           </div>
           
           <div>
-            <label className="block text-sm font-medium mb-1">Password:</label>
+            <label htmlFor="test-password" className="block text-sm font-medium mb-1">Password:</label>
             <input
+              id="test-password"
               type="password"
+              autoComplete="current-password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               className="w-full p-2 border rounded"

@@ -1,11 +1,14 @@
 import axios from 'axios';
 import MockDataService from '../services/mockData.service';
+import secureStorage from './secure-storage';
 
 // Determine the backend URL based on environment
 const getBackendURL = () => {
   // Check for environment variable first (allows override)
   if (import.meta.env.VITE_BACKEND_URL) {
-    console.log('🔗 Using environment variable backend URL:', import.meta.env.VITE_BACKEND_URL);
+    if (!import.meta.env.PROD) {
+      console.log('🔗 Using environment variable backend URL:', import.meta.env.VITE_BACKEND_URL);
+    }
     return import.meta.env.VITE_BACKEND_URL;
   }
   
@@ -13,7 +16,7 @@ const getBackendURL = () => {
   if (import.meta.env.PROD) {
     // Primary Render backend URL for production
     const renderBackendURL = 'https://business-loan-backend.onrender.com';
-    console.log('🔗 Production mode - using Render backend:', renderBackendURL);
+    // No console.log in production for security
     return renderBackendURL;
   }
   
@@ -25,14 +28,17 @@ const getBackendURL = () => {
 
 const BACKEND_URL = getBackendURL();
 
-console.log('🔗 [RENDER] Backend URL configured:', BACKEND_URL);
-console.log('📊 [RENDER] Dashboard system ready for deployment - v2.0.0');
-console.log('🚀 [RENDER] Environment:', {
-  isProd: import.meta.env.PROD,
-  mode: import.meta.env.MODE,
-  backendURL: BACKEND_URL,
-  timestamp: new Date().toISOString()
-});
+// Only log in development mode for security
+if (!import.meta.env.PROD) {
+  console.log('🔗 [DEV] Backend URL configured:', BACKEND_URL);
+  console.log('📊 [DEV] Dashboard system ready for deployment - v2.0.0');
+  console.log('🚀 [DEV] Environment:', {
+    isProd: import.meta.env.PROD,
+    mode: import.meta.env.MODE,
+    backendURL: BACKEND_URL,
+    timestamp: new Date().toISOString()
+  });
+}
 
 // Credentials removed for security - contact admin for login details
 
@@ -57,14 +63,17 @@ const api = axios.create({
 // Request interceptor to add auth token and enhanced logging
 api.interceptors.request.use(
   (config) => {
-    const fullURL = `${config.baseURL || window.location.origin}${config.url}`;
-    console.log('🔄 [RENDER] API Request:', {
-      method: config.method?.toUpperCase(),
-      url: config.url,
-      baseURL: config.baseURL,
-      fullURL: fullURL,
-      timestamp: new Date().toISOString()
-    });
+    // Only log in development mode for security
+    if (!import.meta.env.PROD) {
+      const fullURL = `${config.baseURL || window.location.origin}${config.url}`;
+      console.log('🔄 [DEV] API Request:', {
+        method: config.method?.toUpperCase(),
+        url: config.url,
+        baseURL: config.baseURL,
+        fullURL: fullURL,
+        timestamp: new Date().toISOString()
+      });
+    }
     
     // Enhanced auth token handling for Render deployment
     const isSupabaseEndpoint = config.url?.includes('/api/supabase/');
@@ -73,7 +82,7 @@ api.interceptors.request.use(
     const isDashboardEndpoint = config.url?.includes('/api/dashboard');
     
     if (!isSupabaseEndpoint && !isMockEndpoint && !isHealthEndpoint && !isDashboardEndpoint) {
-      const token = localStorage.getItem('token');
+      const token = secureStorage.getToken();
       if (token) {
         config.headers.Authorization = `Bearer ${token}`;
         console.log('🔑 [RENDER] Added auth token to request');
@@ -126,7 +135,7 @@ api.interceptors.response.use(
       
       if (!isSupabaseEndpoint && !isMockEndpoint && !isHealthEndpoint) {
         console.log('🔐 Unauthorized access to protected endpoint, redirecting to login');
-        localStorage.removeItem('token');
+        secureStorage.clearAll();
         window.location.href = '/login';
       } else {
         console.log('⚠️ 401 error on demo endpoint, not redirecting to login:', error.config?.url);

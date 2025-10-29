@@ -785,7 +785,7 @@ function StaffManagement() {
             <form onSubmit={handleSubmit(onCreateSubmit)} className="space-y-4">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="staff-name" className="block text-sm font-medium text-gray-700 mb-2">
                     Full Name *
                   </label>
                   <input
@@ -793,7 +793,9 @@ function StaffManagement() {
                       required: 'Name is required',
                       minLength: { value: 2, message: 'Name must be at least 2 characters' }
                     })}
+                    id="staff-name"
                     type="text"
+                    autoComplete="name"
                     className="input-field"
                     placeholder="Enter full name"
                   />
@@ -803,7 +805,7 @@ function StaffManagement() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="staff-email" className="block text-sm font-medium text-gray-700 mb-2">
                     Email Address *
                   </label>
                   <input
@@ -814,7 +816,9 @@ function StaffManagement() {
                         message: 'Invalid email address',
                       },
                     })}
+                    id="staff-email"
                     type="email"
+                    autoComplete="email"
                     className="input-field"
                     placeholder="Enter email address"
                   />
@@ -826,7 +830,7 @@ function StaffManagement() {
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="staff-password" className="block text-sm font-medium text-gray-700 mb-2">
                     Password {editingStaff ? '(leave blank to keep current)' : '*'}
                   </label>
                   <input
@@ -834,7 +838,9 @@ function StaffManagement() {
                       required: editingStaff ? false : 'Password is required',
                       minLength: { value: 6, message: 'Password must be at least 6 characters' }
                     })}
+                    id="staff-password"
                     type="password"
+                    autoComplete={editingStaff ? "new-password" : "new-password"}
                     className="input-field"
                     placeholder={editingStaff ? "Leave blank to keep current password" : "Enter password"}
                   />
@@ -844,11 +850,13 @@ function StaffManagement() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                  <label htmlFor="staff-role" className="block text-sm font-medium text-gray-700 mb-2">
                     Role *
                   </label>
                   <select
                     {...register('role', { required: 'Role is required' })}
+                    id="staff-role"
+                    autoComplete="off"
                     className={`input-field ${selectedRole ? 'bg-gray-100 cursor-not-allowed' : ''}`}
                     disabled={!!selectedRole}
                   >
@@ -896,7 +904,9 @@ function StaffManagement() {
         <div className="relative">
           <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
           <input
+            id="staff-search"
             type="text"
+            autoComplete="off"
             placeholder="Search staff members..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}

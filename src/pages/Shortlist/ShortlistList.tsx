@@ -315,7 +315,9 @@ function ShortlistList() {
           <div className="relative flex-1">
             <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
             <input
+              id="shortlist-search"
               type="text"
+              autoComplete="off"
               placeholder="Search by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}

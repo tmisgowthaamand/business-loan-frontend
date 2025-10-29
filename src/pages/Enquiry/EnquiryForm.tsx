@@ -282,12 +282,14 @@ function EnquiryForm() {
         <form onSubmit={handleSubmit(onSubmit)} className="card space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="enquiry-name" className="block text-sm font-medium text-gray-700 mb-2">
                 Full Name *
               </label>
               <input
                 {...register('name', { required: 'Name is required' })}
+                id="enquiry-name"
                 type="text"
+                autoComplete="name"
                 className="input-field"
                 placeholder="Enter full name"
                 readOnly={isViewMode}
@@ -298,7 +300,7 @@ function EnquiryForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="enquiry-mobile" className="block text-sm font-medium text-gray-700 mb-2">
                 Mobile Number *
               </label>
               <input
@@ -309,7 +311,9 @@ function EnquiryForm() {
                     message: 'Please enter a valid 10-digit mobile number',
                   },
                 })}
+                id="enquiry-mobile"
                 type="tel"
+                autoComplete="tel"
                 className="input-field"
                 placeholder="Enter mobile number"
                 readOnly={isViewMode}
@@ -322,12 +326,14 @@ function EnquiryForm() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="enquiry-business-type" className="block text-sm font-medium text-gray-700 mb-2">
                 Business Type
               </label>
               <input
                 {...register('businessType')}
+                id="enquiry-business-type"
                 type="text"
+                autoComplete="organization"
                 className="input-field"
                 placeholder="Enter business type"
                 readOnly={isViewMode}
@@ -335,12 +341,14 @@ function EnquiryForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="enquiry-gst-number" className="block text-sm font-medium text-gray-700 mb-2">
                 GST Number
               </label>
               <input
                 {...register('gstNumber')}
+                id="enquiry-gst-number"
                 type="text"
+                autoComplete="off"
                 className="input-field"
                 placeholder="Enter GST number (optional)"
                 readOnly={isViewMode}
@@ -350,10 +358,10 @@ function EnquiryForm() {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="enquiry-interest-status" className="block text-sm font-medium text-gray-700 mb-2">
                 Interest Status
               </label>
-              <select {...register('interestStatus')} className="input-field" disabled={isViewMode}>
+              <select {...register('interestStatus')} id="enquiry-interest-status" autoComplete="off" className="input-field" disabled={isViewMode}>
                 <option value="">Select status</option>
                 <option value="INTERESTED">Interested</option>
                 <option value="NOT_INTERESTED">Not Interested</option>
@@ -362,10 +370,10 @@ function EnquiryForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="enquiry-comments" className="block text-sm font-medium text-gray-700 mb-2">
                 Comments Status
               </label>
-              <select {...register('comments')} className="input-field" disabled={isViewMode}>
+              <select {...register('comments')} id="enquiry-comments" autoComplete="off" className="input-field" disabled={isViewMode}>
                 <option value="">Select status</option>
                 <option value="NO_RESPONSE">No Response</option>
                 <option value="CHAT_CALL1_COMPLETED">First Call Completed</option>
@@ -405,12 +413,14 @@ function EnquiryForm() {
           {/* Date Fields */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="enquiry-date" className="block text-sm font-medium text-gray-700 mb-2">
                 Enquiry Date *
               </label>
               <input
                 {...register('enquiryDate', { required: 'Enquiry date is required' })}
+                id="enquiry-date"
                 type="date"
+                autoComplete="off"
                 className="input-field"
                 defaultValue={new Date().toISOString().split('T')[0]}
                 readOnly={isViewMode}
@@ -421,12 +431,14 @@ function EnquiryForm() {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="enquiry-follow-up-date" className="block text-sm font-medium text-gray-700 mb-2">
                 Follow Up Date
               </label>
               <input
                 {...register('followUpDate')}
+                id="enquiry-follow-up-date"
                 type="date"
+                autoComplete="off"
                 className="input-field"
                 placeholder="Select follow up date (optional)"
                 readOnly={isViewMode}

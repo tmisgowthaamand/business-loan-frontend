@@ -4,7 +4,24 @@ import path from 'path'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [react()],
+  plugins: [
+    react(),
+    // Add security headers plugin
+    {
+      name: 'security-headers',
+      configureServer(server) {
+        server.middlewares.use((req, res, next) => {
+          // Security headers for development
+          res.setHeader('X-Content-Type-Options', 'nosniff');
+          res.setHeader('X-Frame-Options', 'DENY');
+          res.setHeader('X-XSS-Protection', '1; mode=block');
+          res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+          res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+          next();
+        });
+      }
+    }
+  ],
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
@@ -13,6 +30,7 @@ export default defineConfig({
     extensions: ['.js', '.ts', '.jsx', '.tsx', '.json'],
   },
   build: {
+    sourcemap: false, // Disable source maps in production for security
     rollupOptions: {
       output: {
         manualChunks: {
@@ -21,6 +39,13 @@ export default defineConfig({
           query: ['react-query'],
           ui: ['@heroicons/react', 'framer-motion'],
         },
+      },
+    },
+    // Security: Remove console logs in production
+    terserOptions: {
+      compress: {
+        drop_console: true,
+        drop_debugger: true,
       },
     },
   },

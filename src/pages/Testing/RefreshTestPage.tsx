@@ -145,9 +145,11 @@ const RefreshTestPage: React.FC = () => {
         <div className="flex items-center justify-between mb-4">
           <h1 className="text-2xl font-bold text-gray-900">Data Persistence & Auto-Refresh Test</h1>
           <div className="flex items-center space-x-4">
-            <label className="flex items-center">
+            <label htmlFor="auto-refresh-toggle" className="flex items-center">
               <input
+                id="auto-refresh-toggle"
                 type="checkbox"
+                autoComplete="off"
                 checked={isAutoRefreshEnabled}
                 onChange={(e) => setIsAutoRefreshEnabled(e.target.checked)}
                 className="mr-2"

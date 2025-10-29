@@ -202,12 +202,14 @@ function ShortlistForm() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Basic Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="shortlist-name" className="block text-sm font-medium text-gray-700 mb-2">
                   Full Name *
                 </label>
                 <input
                   {...register('name', { required: 'Name is required' })}
+                  id="shortlist-name"
                   type="text"
+                  autoComplete="name"
                   className="input-field"
                   placeholder="Enter full name"
                 />
@@ -217,12 +219,14 @@ function ShortlistForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="shortlist-mobile" className="block text-sm font-medium text-gray-700 mb-2">
                   Mobile Number *
                 </label>
                 <input
                   {...register('mobile', { required: 'Mobile number is required' })}
+                  id="shortlist-mobile"
                   type="tel"
+                  autoComplete="tel"
                   className="input-field"
                   placeholder="Enter mobile number"
                 />
@@ -232,24 +236,28 @@ function ShortlistForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="shortlist-district" className="block text-sm font-medium text-gray-700 mb-2">
                   District
                 </label>
                 <input
                   {...register('district')}
+                  id="shortlist-district"
                   type="text"
+                  autoComplete="address-level2"
                   className="input-field"
                   placeholder="Enter district"
                 />
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="shortlist-date" className="block text-sm font-medium text-gray-700 mb-2">
                   Date
                 </label>
                 <input
                   {...register('date')}
+                  id="shortlist-date"
                   type="date"
+                  autoComplete="off"
                   className="input-field"
                 />
               </div>
@@ -262,12 +270,14 @@ function ShortlistForm() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Business Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="shortlist-business-name" className="block text-sm font-medium text-gray-700 mb-2">
                   Business Name
                 </label>
                 <input
                   {...register('businessName')}
+                  id="shortlist-business-name"
                   type="text"
+                  autoComplete="organization"
                   className="input-field"
                   placeholder="Enter business name"
                 />

@@ -289,7 +289,9 @@ function EnquiryList() {
           <div className="relative">
             <MagnifyingGlassIcon className="h-5 w-5 absolute left-3 top-3 text-gray-400" />
             <input
+              id="enquiry-search"
               type="text"
+              autoComplete="off"
               placeholder="Search by name..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
@@ -332,7 +334,9 @@ function EnquiryList() {
             <div className="relative">
               <MagnifyingGlassIcon className="h-5 w-5 absolute left-4 top-3.5 text-slate-400" />
               <input
+                id="enquiry-search-alt"
                 type="text"
+                autoComplete="off"
                 placeholder="Search enquiries..."
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}

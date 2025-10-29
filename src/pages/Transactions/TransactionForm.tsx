@@ -146,12 +146,14 @@ function TransactionForm() {
             <h3 className="text-lg font-medium text-gray-900 mb-4">Transaction Information</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="transaction-name" className="block text-sm font-medium text-gray-700 mb-2">
                   Name *
                 </label>
                 <input
                   {...register('name', { required: 'Name is required' })}
+                  id="transaction-name"
                   type="text"
+                  autoComplete="name"
                   className="input-field"
                   placeholder="Enter transaction name"
                 />
@@ -161,12 +163,14 @@ function TransactionForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="transaction-date" className="block text-sm font-medium text-gray-700 mb-2">
                   Date *
                 </label>
                 <input
                   {...register('date', { required: 'Date is required' })}
+                  id="transaction-date"
                   type="date"
+                  autoComplete="off"
                   className="input-field"
                 />
                 {errors.date && (
@@ -175,12 +179,14 @@ function TransactionForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="transaction-time" className="block text-sm font-medium text-gray-700 mb-2">
                   Time *
                 </label>
                 <input
                   {...register('time', { required: 'Time is required' })}
+                  id="transaction-time"
                   type="time"
+                  autoComplete="off"
                   className="input-field"
                 />
                 {errors.time && (
@@ -189,12 +195,14 @@ function TransactionForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="transaction-id" className="block text-sm font-medium text-gray-700 mb-2">
                   Transaction ID *
                 </label>
                 <input
                   {...register('transactionId', { required: 'Transaction ID is required' })}
+                  id="transaction-id"
                   type="text"
+                  autoComplete="off"
                   className="input-field"
                   placeholder="Enter transaction ID"
                 />
@@ -204,7 +212,7 @@ function TransactionForm() {
               </div>
 
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
+                <label htmlFor="transaction-amount" className="block text-sm font-medium text-gray-700 mb-2">
                   Amount *
                 </label>
                 <input
@@ -212,8 +220,10 @@ function TransactionForm() {
                     required: 'Amount is required',
                     min: { value: 0.01, message: 'Amount must be greater than 0' }
                   })}
+                  id="transaction-amount"
                   type="number"
                   step="0.01"
+                  autoComplete="off"
                   className="input-field"
                   placeholder="Enter amount"
                 />
