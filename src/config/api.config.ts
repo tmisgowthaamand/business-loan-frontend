@@ -110,6 +110,7 @@ export const API_CONFIG = {
     HEALTH: {
       CHECK: '/api/health',
       PING: '/api/health/ping',
+      ROOT: '/', // Root endpoint for API status
     },
   },
   
