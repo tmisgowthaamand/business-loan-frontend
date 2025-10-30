@@ -106,16 +106,16 @@ function Login() {
             >
               <div className="mb-10 flex justify-center items-center">
                 <img 
-                  src="/generated-image.png" 
+                  src="/generated-image 1.png" 
                   alt="Company Logo" 
-                  className="w-48 h-48 object-contain hover:scale-120 transition-all duration-300"
+                  className="object-contain hover:scale-105 transition-all duration-300"
                   style={{ 
-                    filter: 'contrast(3.0) saturate(2.5) brightness(2.5) drop-shadow(0 6px 12px rgba(0,0,0,0.15))',
-                    imageRendering: 'crisp-edges' as any,
+                    width: '96px',
+                    height: '96px',
+                    filter: 'brightness(1.1) contrast(1.2) saturate(1.05)',
+                    imageRendering: 'crisp-edges',
                     maxWidth: '100%',
-                    maxHeight: '100%',
-                    transform: 'translateZ(0)',
-                    backfaceVisibility: 'hidden' as any
+                    maxHeight: '100%'
                   }}
                 />
               </div>
@@ -153,16 +153,16 @@ function Login() {
             <div className="text-center lg:text-left mb-8">
               <div className="lg:hidden mb-8 flex justify-center items-center">
                 <img 
-                  src="/generated-image.png" 
+                  src="/generated-image 1.png" 
                   alt="Company Logo" 
-                  className="w-44 h-44 object-contain hover:scale-120 transition-all duration-300"
+                  className="object-contain hover:scale-105 transition-all duration-300"
                   style={{ 
-                    filter: 'contrast(3.0) saturate(2.5) brightness(2.5) drop-shadow(0 6px 12px rgba(0,0,0,0.15))',
-                    imageRendering: 'crisp-edges' as any,
+                    width: '80px',
+                    height: '80px',
+                    filter: 'brightness(1.1) contrast(1.2) saturate(1.05)',
+                    imageRendering: 'crisp-edges',
                     maxWidth: '100%',
-                    maxHeight: '100%',
-                    transform: 'translateZ(0)',
-                    backfaceVisibility: 'hidden' as any
+                    maxHeight: '100%'
                   }}
                 />
               </div>

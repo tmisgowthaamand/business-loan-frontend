@@ -12,6 +12,7 @@ import {
 } from '@heroicons/react/24/outline';
 import { useAuth } from '../../context/AuthContext';
 import { useStaffPermissions } from '../../hooks/useStaffPermissions';
+import Logo from '../ui/Logo';
 
 function Sidebar() {
   const { user, logout } = useAuth();
@@ -36,11 +37,11 @@ function Sidebar() {
         <div className="flex items-center space-x-4">
           <div className="flex items-center justify-center">
             <img 
-              src="/generated-image.png" 
+              src="/generated-image 1.png" 
               alt="Company Logo" 
-              className="w-20 h-20 object-contain drop-shadow-2xl hover:scale-110 transition-transform duration-300"
+              className="w-24 h-24 object-contain"
               style={{ 
-                filter: 'contrast(2.2) saturate(2.0) brightness(1.8)',
+                filter: 'brightness(1.1) contrast(1.2) saturate(1.05)',
                 imageRendering: 'crisp-edges',
                 maxWidth: '100%',
                 maxHeight: '100%'

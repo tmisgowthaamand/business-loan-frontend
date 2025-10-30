@@ -12,6 +12,7 @@ import { useAuth } from '../../context/AuthContext';
 import Settings from '../Settings/Settings';
 import NotificationBell from '../Notifications/NotificationBell';
 import LanguageSwitcher from '../LanguageSwitcher/LanguageSwitcher';
+import Logo from '../ui/Logo';
 
 interface HeaderProps {
   language?: string;
@@ -57,12 +58,16 @@ function Header({ language = 'en', onLanguageChange }: HeaderProps) {
           <div className="flex items-center space-x-4">
             <div className="flex items-center justify-center">
               <img 
-                src="/generated-image.png" 
+                src="/generated-image 1.png" 
                 alt="Company Logo" 
-                className="h-12 w-12 object-contain drop-shadow-md hover:scale-105 transition-transform duration-200"
+                className="object-contain"
                 style={{ 
-                  filter: 'contrast(1.8) saturate(1.5) brightness(1.2)',
-                  imageRendering: 'crisp-edges'
+                  filter: 'brightness(1.1) contrast(1.2) saturate(1.05)',
+                  imageRendering: 'crisp-edges',
+                  width: '78px',
+                  height: '78px',
+                  maxWidth: '100%',
+                  maxHeight: '100%'
                 }}
               />
             </div>
