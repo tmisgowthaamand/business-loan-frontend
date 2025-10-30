@@ -57,11 +57,41 @@
       .logo-circular-xl {
         border-radius: 50%;
         object-fit: cover;
-        width: 80px;
-        height: 80px;
-        min-width: 80px;
-        min-height: 80px;
+        width: 100px;
+        height: 100px;
+        min-width: 100px;
+        min-height: 100px;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+      }
+      
+      /* Super large logo for hero sections */
+      .logo-circular-2xl {
+        border-radius: 50%;
+        object-fit: cover;
+        width: 120px;
+        height: 120px;
+        min-width: 120px;
+        min-height: 120px;
+        box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+        border: 3px solid rgba(255, 255, 255, 0.8);
+      }
+      
+      /* Massive logo for splash/landing */
+      .logo-circular-3xl {
+        border-radius: 50%;
+        object-fit: cover;
+        width: 150px;
+        height: 150px;
+        min-width: 150px;
+        min-height: 150px;
+        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+        border: 4px solid rgba(255, 255, 255, 0.9);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+      }
+      
+      .logo-circular-3xl:hover {
+        transform: scale(1.05);
+        box-shadow: 0 12px 32px rgba(0, 0, 0, 0.3);
       }
     </style>
   </head>
